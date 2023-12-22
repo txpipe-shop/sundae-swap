@@ -1,9 +1,9 @@
 #import "templates/report.typ": *
 
 #show: report.with(
-  client: "XXXXX",
-  title: "XXXXX",
-  repo: "XXXXX",
+  client: "Sundae Labs",
+  title: "V2",
+  repo: "https://github.com/txpipe-shop/sundae-swap",
   date: "XXXXX",
 )
 
@@ -40,7 +40,7 @@ The final state of the files for the purposes of this report is considered to be
 #v(1em)
 #findings(items: (
   (
-    id: [XXX],
+    id: [SSW-001],
     title: [XXXXXXX],
     severity: "Critical",
     status: "Resolved",
