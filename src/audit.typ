@@ -2,7 +2,7 @@
 
 #show: report.with(
   client: "Sundae Labs",
-  title: "V2",
+  title: "V3",
   repo: "https://github.com/txpipe-shop/sundae-swap",
   date: "XXXXX",
 )
@@ -21,6 +21,24 @@
 #v(1em)
 #lorem(50)
 #pagebreak()
+
+== Transactions
+#v(1em)
+Below are a list of valid and invalid transactions as diagrams that can be build to interact with Sundae Swap DEX.
+
+=== Operation XXX
+#v(1em)
+<Explanation of transaction here>
+
+==== Expected Failure Scenarios
+#v(1em)
+
+- Check 1
+- Check 2
+- ...
+
+#pagebreak()
+
 
 === Files Audited
 #v(1em)
