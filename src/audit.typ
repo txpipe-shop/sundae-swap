@@ -28,7 +28,7 @@ Below are a list of valid and invalid transactions as diagrams that can be build
 
 === Operation XXX
 #v(1em)
-<Explanation of transaction here>
+Explanation of transaction here
 
 ==== Expected Failure Scenarios
 #v(1em)
