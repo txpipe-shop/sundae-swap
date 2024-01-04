@@ -32,20 +32,20 @@ Below are a list of valid and invalid transactions as diagrams that can be build
 
 This transaction transfers funds from the user to the Order script address, whose associated validator will then be executed to unlock them. This transaction does not require a validator execution and stores a datum that contains information about the type of Order the user made.
 
-The assets sent are different depending on the type of Order but they all contain 2 ADA (considered as min ADA) and the maximum protocol fee that the user is willing to pay for the processing of the order.
+The assets sent are different depending on the type of Order but they all contain at least the maximum protocol fee ADA, the assets relevant to the specific type of Order plus any other assets (optional).
 
-More precisely, the assets apart from ADA for each kind of order are:
+More precisely, the assets relevant to the specific type of Order are:
 
 - Swap: the offered asset given in exchange for the pair's other asset.
 - Deposit: both assets from the pair.
 - Withdrawal: LP tokens.
 - Donation: both assets from the pair.
-- Strategy: no other assets.
+- Strategy: none.
 
 #figure(
-  image("img/create_order_swap.png", width: 100%),
+  image("img/create_order.png", width: 100%),
   caption: [
-    Create Swap Order diagram.
+    Create Order diagram.
   ],
 )
 
