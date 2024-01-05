@@ -143,11 +143,11 @@ The final state of the files for the purposes of this report is considered to be
 #v(1em)
 #findings(items: (
 /*  (
-    id: [SSW-001],
+    id: [SSW-001],         // first digit corresponds to severity (see below)
     title: [XXXXXXX],
-    severity: "Critical",
-    status: "Resolved",
-    category: "Bug",
+    severity: "Critical",  // one of: Critical (0), Major (1), Minor (2), Info (3)
+    status: "Resolved",    // one of: Resolved, Acknowledged, Identified
+    category: "Bug",       // open, for example: Bug, Style, Redundancy, Efficiency, External, etc.
     commit: "",
     description: [XXXXXXX],
     recommendation: [XXXXXXX],
