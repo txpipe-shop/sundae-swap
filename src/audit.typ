@@ -174,4 +174,22 @@ The final state of the files for the purposes of this report is considered to be
     ],
     resolution: [Resolved in commit `XXXX`],
   ),
+  (
+    id: [SSW-302],
+    title: [Redundant check for pool output stake credential in pool scoop validator],
+    severity: "Info",
+    status: "Identified",
+    category: "Redundancy",
+    commit: "bcde39aa87567eaee81ccd7fbaf045543c233daa",
+    description: [
+      Stake credential is checked in
+      #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/bcde39aa87567eaee81ccd7fbaf045543c233daa/validators/pool.ak#L230")[lines 230-231]
+      but entire address was already checked in
+      #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/bcde39aa87567eaee81ccd7fbaf045543c233daa/validators/pool.ak#L125")[line 125].
+    ],
+    recommendation: [
+      Remove redundant check.
+    ],
+    resolution: [Resolved in commit `XXXX`],
+  ),
 ))
