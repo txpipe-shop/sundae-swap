@@ -142,7 +142,7 @@ The final state of the files for the purposes of this report is considered to be
 = Findings
 #v(1em)
 #findings(items: (
-  (
+/*  (
     id: [SSW-001],
     title: [XXXXXXX],
     severity: "Critical",
@@ -151,6 +151,27 @@ The final state of the files for the purposes of this report is considered to be
     commit: "",
     description: [XXXXXXX],
     recommendation: [XXXXXXX],
+    resolution: [Resolved in commit `XXXX`],
+  ), */
+  (
+    id: [SSW-301],
+    title: [Redundant parameters in process_order: outputs = output + rest_outputs],
+    severity: "Info",
+    status: "Identified",
+    category: "Redundancy",
+    commit: "bcde39aa87567eaee81ccd7fbaf045543c233daa",
+    description: [
+      The `process_order` function takes an `outputs` list but also its head
+      `output` and tail `rest_outputs`.
+      Probably for optimization, as the caller `process_orders` already
+      destructured the list, to avoid repeating it.
+      However, there is no need for the caller to destructure.
+    ],
+    recommendation: [
+      Remove parameters `output` and tail `rest_outputs` from `process_orders`.
+      Destructure inside `process_orders`, and remove destructuring from
+      `process_orders`.
+    ],
     resolution: [Resolved in commit `XXXX`],
   ),
 ))
