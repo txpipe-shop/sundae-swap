@@ -51,12 +51,24 @@ More precisely, the assets relevant to the specific type of Order are:
 
 === Operation "cancel order"
 
-Explanation of transaction here
+This transaction spends an Order UTxO with a Cancel redeemer that allows the transfer of those funds wherever the order Owner wants, which must sign the transaction.
+
+The most common use cases are recovering the funds and doing an order update by consuming the order UTxO and producing a new one.
+
+It is worth noting that the order Owner is a multi-sig script, which allows a straightforward signature requirement as just the presence of a specific public key signature as well as a complex Cardano native/simple script-like validation.
+
+#figure(
+  image("img/cancel_order.png", width: 100%),
+  caption: [
+    Cancel Order diagram.
+  ],
+)
 
 Code:
 - #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/bcde39aa87567eaee81ccd7fbaf045543c233daa/validators/order.ak#L11")[order.ak:spend():Cancel]
 
 Expected Failure Scenarios:
+- Owner is *not* signing the transaction
 
 === Operation "create pool"
 
