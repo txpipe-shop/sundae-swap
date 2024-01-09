@@ -211,4 +211,25 @@ The final state of the files for the purposes of this report is considered to be
     ],
     resolution: [Resolved in commit `XXXX`],
   ),
+  (
+    id: [SSW-303],
+    title: [Optimizable power of two (`do_2_exp`)],
+    severity: "Info",
+    status: "Identified",
+    category: "Optimization",
+    commit: "bcde39aa87567eaee81ccd7fbaf045543c233daa",
+    description: [
+      Function `do_2_exp` is used in the pool scoop operation to compute the
+      power of 2 over the set {0, 1, ..., n-1} where n is the number of scooped
+      orders. Current definition is a simple linear recursion, resulting in a
+      relevant impact in mem/cpu consumption.
+    ],
+    recommendation: [
+      Instead of current definition use the highly optimized `math.pow2`
+      function from Aiken standard library. Our tests with the provided
+      benchmark #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/rrruko/update-benchmark/lucid/main.ts")[main.ts]
+      sshow that maximum number of orders go from 32 to 35.
+    ],
+    resolution: [Resolved in commit `XXXX`],
+  ),
 ))
