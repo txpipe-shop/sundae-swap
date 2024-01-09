@@ -74,6 +74,13 @@ Expected Failure Scenarios:
 
 Explanation of transaction here
 
+#figure(
+  image("img/create_pool.png", width: 100%),
+  caption: [
+    Create Pool diagram.
+  ],
+)
+
 Code:
 - #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/bcde39aa87567eaee81ccd7fbaf045543c233daa/validators/pool.ak#L281")[pool.ak:mint():CreatePool]
 
