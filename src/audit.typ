@@ -169,7 +169,23 @@ The final state of the files for the purposes of this report is considered to be
 
 #files_audited(
   items: (
-    "XXXX",
+    "validators/order.ak",
+    "validators/pool.ak",
+    "validators/pool_stake.ak",
+    "validators/settings.ak",
+    "validators/stake.ak",
+    "lib/calculation/deposit.ak",
+    "lib/calculation/donation.ak",
+    "lib/calculation/process.ak",
+    "lib/calculation/shared.ak",
+    "lib/calculation/strategy.ak",
+    "lib/calculation/swap.ak",
+    "lib/calculation/withdrawal.ak",
+    "lib/shared.ak"
+    "lib/types/order.ak",
+    "lib/types/pool.ak",
+    "lib/types/settings.ak",
+    "https://github.com/SundaeSwap-finance/aicone/blob/main/lib/sundae/multisig.ak",
   ) 
 )
 
