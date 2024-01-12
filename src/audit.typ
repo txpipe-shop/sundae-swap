@@ -181,7 +181,7 @@ The final state of the files for the purposes of this report is considered to be
     "lib/calculation/strategy.ak",
     "lib/calculation/swap.ak",
     "lib/calculation/withdrawal.ak",
-    "lib/shared.ak"
+    "lib/shared.ak",
     "lib/types/order.ak",
     "lib/types/pool.ak",
     "lib/types/settings.ak",
