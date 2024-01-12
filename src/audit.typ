@@ -254,7 +254,7 @@ The final state of the files for the purposes of this report is considered to be
     title: [Redundant `datum` parameter in `process_order`],
     severity: "Info",
     status: "Identified",
-    category: "",
+    category: "Redundancy",
     commit: "bcde39aa87567eaee81ccd7fbaf045543c233daa",
     description: [
       All the information used internally by `process_order` is contained in
