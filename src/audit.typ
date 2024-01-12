@@ -269,4 +269,32 @@ The final state of the files for the purposes of this report is considered to be
     ],
     resolution: [Resolved in commit `XXXX`],
   ),
+  (
+    id: [SSW-305],
+    title: [Total fee computed recursively can be calculated in single
+    expression],
+    severity: "Info",
+    status: "Identified",
+    category: "Optimization",
+    commit: "bcde39aa87567eaee81ccd7fbaf045543c233daa",
+    description: [
+      Total fee is computed in `process_orders` using an accumulator parameter
+      `total_fee` that is returned at the end of the recursion. Individual fee
+      for each order is computed and returned by `process_order` to be
+      accumulated.
+
+      However, we observe that the result is equivalent to:
+
+      `total_fee = amortized_base_fee * order_count + simple_fee * simple_count
+      + strategy_fee * strategy_count`
+    ],
+    recommendation: [
+      Remove `total_fee` as parameter and return value from `process_orders`.
+      In `pool.ak`, directly define `total_protocol_fee` using the given
+      formula.
+
+      Also, there is no need for `process_order` to return the fee anymore.
+    ],
+    resolution: [Resolved in commit `XXXX`],
+  ),
 ))
