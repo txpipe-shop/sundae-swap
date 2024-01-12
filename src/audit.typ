@@ -72,7 +72,14 @@ Expected Failure Scenarios:
 
 === Operation "create pool"
 
-Explanation of transaction here
+This transaction creates a Pool UTxO based on the settings UTxO, which provides various protocol configurations, and funds transfered from the pool creator that act as the initial liquidity. Also, a UTxO which will hold the metadata associated with the pool is created, although the actual metadata information is uploaded in a subsequent transaction that will be performed by the metadata admin.
+
+The minted assets are:
+- pool NFT: held within the pool UTxO
+- pool reference NFT: used to identify the UTxO that will hold the metadata associated to the pool
+- LP tokens: paid to the pool creator. These tokens represent the amount of liquidity provided by the creator
+
+(... TODO more details about the tx)
 
 #figure(
   image("img/create_pool.png", width: 100%),
@@ -83,21 +90,21 @@ Explanation of transaction here
 
 Code:
 - #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/bcde39aa87567eaee81ccd7fbaf045543c233daa/validators/pool.ak#L281")[pool.ak:mint():CreatePool]
+- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/bcde39aa87567eaee81ccd7fbaf045543c233daa/validators/pool.ak#L375")[pool.ak:mint():MintLP]
 
 Expected Failure Scenarios:
 
 - Quantities of both tokens of the pair are not a positive integer
 - Pool reference NFT is not paid to the metadata output
 - Pool NFT or specified quantity of both tokens of the pair are not paid to the pool script address
-- Pool value does not have more assets than the relevant ones: the pool NFT, ADA, and tokens from the pair
+- Pool value does have more assets than the relevant ones: the pool NFT, protocolFees ADA, and both tokens from the pair
 - Pool datum is not valid. One of:
   - Pool identifier is not correct based on the rules defined for ensuring uniqueness
-  - The assets property does not match with the tokens provided to the pool UTxO
+  - The assets property does not match with the tokens pair provided to the pool UTxO
   - Circulating LP property does not equal the minted quantity of LP tokens
-  - Fees per ten thousand property is not a positive integer or is greater than 100 per ten thousand
-  - Market open time is after the fee finalized time
+  - Fees per ten thousand property is not a positive integer
   - Protocol fees is not a positive integer
-- Metadata output complies with #link("https://developers.cardano.org/docs/governance/cardano-improvement-proposals/cip-0068/#constraints-and-conditions")[CIP68 standard constraints and conditions]
+- Metadata output has a void datum
 - The settings UTxO has a token with the expected policy ID (parameter of the validator)
 
 === Operation "scoop"
