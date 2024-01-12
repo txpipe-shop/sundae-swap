@@ -257,11 +257,15 @@ The final state of the files for the purposes of this report is considered to be
     category: "",
     commit: "bcde39aa87567eaee81ccd7fbaf045543c233daa",
     description: [
-      All the information used internally by `process_order` is contained in fields `details` and `destination` that are already parameters of `process_order`. 
-      Also: in do_deposit, do_withdrawal and do_donation directly pass details and destination.
+      All the information used internally by `process_order` is contained in
+      fields `details` and `destination` that are already parameters of
+      `process_order`. Also: in do_deposit, do_withdrawal and do_donation
+      directly pass details and destination.
     ],
     recommendation: [
-      Remove `datum` parameter from `process_order`. In `do_deposit`, `do_withdrawal` and `do_donation`, directly pass `details` and `destination`, instead of whole datum.
+      Remove `datum` parameter from `process_order`. In `do_deposit`,
+      `do_withdrawal` and `do_donation`, directly pass `details` and
+      `destination`, instead of whole datum.
     ],
     resolution: [Resolved in commit `XXXX`],
   ),
