@@ -111,6 +111,13 @@ Expected Failure Scenarios:
 
 Explanation of transaction here
 
+#figure(
+  image("img/scoop.png", width: 100%),
+  caption: [
+    Scoop diagram.
+  ],
+)
+
 Code:
 - #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/bcde39aa87567eaee81ccd7fbaf045543c233daa/validators/pool.ak#L140")[pool.ak:spend():PoolScoop]
 - #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/bcde39aa87567eaee81ccd7fbaf045543c233daa/validators/order.ak#L19")[order.ak:spend():Scoop]
