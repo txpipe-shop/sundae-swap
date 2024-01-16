@@ -216,7 +216,7 @@ The final state of the files for the purposes of this report is considered to be
     id: [SSW-301],
     title: [Redundant parameters in process_order: outputs = output + rest_outputs],
     severity: "Info",
-    status: "Identified",
+    status: "Resolved",
     category: "Redundancy",
     commit: "bcde39aa87567eaee81ccd7fbaf045543c233daa",
     description: [
@@ -231,7 +231,10 @@ The final state of the files for the purposes of this report is considered to be
       Destructure inside `process_orders`, and remove destructuring from
       `process_orders`.
     ],
-    resolution: [Resolved in commit `XXXX`],
+    resolution: [
+      Resolved in commit `5d78f9e2ed10c7206711fc5a58ed0595dbf51c50`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/28")[PR #28]).
+    ],
   ),
   (
     id: [SSW-302],
@@ -282,7 +285,7 @@ The final state of the files for the purposes of this report is considered to be
     id: [SSW-304],
     title: [Redundant `datum` parameter in `process_order`],
     severity: "Info",
-    status: "Identified",
+    status: "Resolved",
     category: "Redundancy",
     commit: "bcde39aa87567eaee81ccd7fbaf045543c233daa",
     description: [
@@ -296,14 +299,17 @@ The final state of the files for the purposes of this report is considered to be
       `do_withdrawal` and `do_donation`, directly pass `details` and
       `destination`, instead of whole datum.
     ],
-    resolution: [Resolved in commit `XXXX`],
+    resolution: [
+      Resolved in commit `c143cd30ccebfb8c83940d1fac34475d12a64d80`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/29")[PR #29]).
+    ],
   ),
   (
     id: [SSW-305],
     title: [Total fee computed recursively can be calculated in single
     expression],
     severity: "Info",
-    status: "Identified",
+    status: "Resolved",
     category: "Optimization",
     commit: "bcde39aa87567eaee81ccd7fbaf045543c233daa",
     description: [
@@ -324,6 +330,9 @@ The final state of the files for the purposes of this report is considered to be
 
       Also, there is no need for `process_order` to return the fee anymore.
     ],
-    resolution: [Resolved in commit `XXXX`],
+    resolution: [
+      Resolved in commit `e686590f18dce0ef50074296cdc502f2adb9fea0`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/30")[PR #30]).
+    ],
   ),
 ))
