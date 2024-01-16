@@ -255,7 +255,7 @@ The final state of the files for the purposes of this report is considered to be
     id: [SSW-303],
     title: [Optimizable power of two (`do_2_exp`)],
     severity: "Info",
-    status: "Identified",
+    status: "Resolved",
     category: "Optimization",
     commit: "bcde39aa87567eaee81ccd7fbaf045543c233daa",
     description: [
@@ -265,12 +265,18 @@ The final state of the files for the purposes of this report is considered to be
       relevant impact in mem/cpu consumption.
     ],
     recommendation: [
-      Instead of current definition use the highly optimized `math.pow2`
-      function from Aiken standard library. Our tests with the provided
-      benchmark #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/rrruko/update-benchmark/lucid/main.ts")[main.ts]
-      sshow that maximum number of orders go from 32 to 35.
+      Instead of current definition use the optimized `math.pow2`
+      function from Aiken standard library, or the even more optimized version
+      proposed by TxPipe #link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/27#issuecomment-1892738977")[here].
+
+      Our tests with the provided benchmark
+       #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/rrruko/update-benchmark/lucid/main.ts")[main.ts]
+      show that the maximum number of orders can go from 32 to 36.
     ],
-    resolution: [Resolved in commit `XXXX`],
+    resolution: [
+      Resolved in commit `e92bff96934483bf4fe03762e5e2cdef9706eaae`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/27")[PR #27]).
+    ],
   ),
   (
     id: [SSW-304],
