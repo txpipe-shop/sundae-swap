@@ -79,7 +79,9 @@ The minted assets are:
 - pool reference NFT: used to identify the UTxO that will hold the metadata associated to the pool
 - LP tokens: paid to the pool creator. These tokens represent the amount of liquidity provided by the creator
 
-(... TODO more details about the tx)
+The involved redeemers are:
+- `CreatePool`
+- `MintLP`
 
 #figure(
   image("img/create_pool.png", width: 100%),
@@ -126,9 +128,20 @@ Code:
 
 Expected Failure Scenarios:
 
-- Check 1
-- Check 2
-- ...
+- Pool output address is not equal than Pool input address
+- In the pool datum, other field/s than `circulating_lp` is/are modified
+- Pool NFT is stolen from the Pool UTxO or burned
+- Pool pair amounts does not match the expected quantities given the specific processed orders
+- Pool output has an asset that was not in the Pool intput.
+- TODO failure scenarios regarding fees
+- For each destination output. One of:
+  - Is not paid to the destination address specified in the corresponding Order input
+  - The destination output doesn't have the datum specified in the corresponding Order input
+  - The paid value is not consistent with the action defined in the corresponding Order
+- For each Order input. One of:
+  - If the Order has pool identifier, it does not match with the identifier of the Pool being consumed
+  - If the Order is of the Strategy type and doesn't have a defined strategy execution, or if it has a strategy execution defined, is not signed by the expected party.
+- The market is not open yet i.e. the tx validation range is not contained in the interval [market open POSIX time, +∞)
 
 === Operation "withdraw fees"
 
