@@ -226,6 +226,28 @@ The final state of the files for the purposes of this report is considered to be
     resolution: [Resolved in commit `XXXX`],
   ), */
   (
+    id: [SSW-001],
+    title: [Create pool doesn't validate the pool output address],
+    severity: "Critical",
+    status: "Identified",
+    category: "Vulnerability",
+    commit: "4a5f4f494665f7a110e89d5aa5425fd5cae2311a",
+    description: [
+      The is no check on the pool output address where pool datum and value are
+      paid to. Without this check, a pool NFT can be minted and paid to any
+      address, even a particular wallet. This token can be used later to scoop
+      orders that are not directed to a specific pool and steal their funds.
+    ],
+    recommendation: [
+      Check that the pool ouput is paid to the pool script hash. This is, that
+      the payment part of the output address equals the own policy ID.
+    ],
+    resolution: [
+      Resolved in commit `XXXX`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+    ],
+  ),
+  (
     id: [SSW-201],
     title: [Create pool doesn't validate if ADA is not in the pair],
     severity: "Minor",
