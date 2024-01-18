@@ -226,6 +226,34 @@ The final state of the files for the purposes of this report is considered to be
     resolution: [Resolved in commit `XXXX`],
   ), */
   (
+    id: [SSW-201],
+    title: [Create pool doesn't validate if ADA is not in the pair],
+    severity: "Minor",
+    status: "Identified",
+    category: "Bug",
+    commit: "4a5f4f494665f7a110e89d5aa5425fd5cae2311a",
+    description: [
+      Pool output value is checked to have at most 3 different assets (line
+      #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/4a5f4f494665f7a110e89d5aa5425fd5cae2311a/validators/pool.ak#L415")[415]).
+      However, if ADA is not in the pair of assets (A, B), the output value
+      will have four assets: A, B, ADA and the pool NFT.
+    ],
+    recommendation: [
+      A quick solution is to fix the check so it compares to 3 or 4 depending
+      if ADA is in the pair or not.
+
+      Alternatively, we propose to change the approach for validating the
+      output value by building the expected output value and comparing it with
+      value equality.
+      We think this approach is more straightforward and less error prone as it
+      ensures that there is only one possible outcome for the value.
+    ],
+    resolution: [
+      Resolved in commit `XXXX`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+    ],
+  ),
+  (
     id: [SSW-301],
     title: [Redundant parameters in process_order: outputs = output + rest_outputs],
     severity: "Info",
