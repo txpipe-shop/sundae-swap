@@ -221,9 +221,16 @@ The final state of the files for the purposes of this report is considered to be
     status: "Resolved",    // one of: Resolved, Acknowledged, Identified
     category: "Bug",       // open, for example: Bug, Style, Redundancy, Efficiency, External, etc.
     commit: "",
-    description: [XXXXXXX],
-    recommendation: [XXXXXXX],
-    resolution: [Resolved in commit `XXXX`],
+    description: [
+      XXXXXXX
+    ],
+    recommendation: [
+      XXXXXXX
+    ],
+    resolution: [
+      Resolved in commit `XXXX`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+    ],
   ), */
   (
     id: [SSW-001],
@@ -296,7 +303,7 @@ The final state of the files for the purposes of this report is considered to be
     ],
     resolution: [
       Resolved in commit `5d78f9e2ed10c7206711fc5a58ed0595dbf51c50`
-      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/28")[PR #28]).
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/28")[PR \#28]).
     ],
   ),
   (
@@ -341,7 +348,7 @@ The final state of the files for the purposes of this report is considered to be
     ],
     resolution: [
       Resolved in commit `e92bff96934483bf4fe03762e5e2cdef9706eaae`
-      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/27")[PR #27]).
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/27")[PR \#27]).
     ],
   ),
   (
@@ -364,7 +371,7 @@ The final state of the files for the purposes of this report is considered to be
     ],
     resolution: [
       Resolved in commit `c143cd30ccebfb8c83940d1fac34475d12a64d80`
-      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/29")[PR #29]).
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/29")[PR \#29]).
     ],
   ),
   (
@@ -395,7 +402,7 @@ The final state of the files for the purposes of this report is considered to be
     ],
     resolution: [
       Resolved in commit `e686590f18dce0ef50074296cdc502f2adb9fea0`
-      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/30")[PR #30]).
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/30")[PR \#30]).
     ],
   ),
 ))
