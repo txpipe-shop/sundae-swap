@@ -434,4 +434,41 @@ The final state of the files for the purposes of this report is considered to be
       (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/30")[PR \#30]).
     ],
   ),
+  (
+    id: [SSW-306],
+    title: [Optimizable check for initial LP minting in create pool.],
+    severity: "Info",
+    status: "Identified",
+    category: "Optimization",
+    commit: "4a5f4f494665f7a110e89d5aa5425fd5cae2311a",
+    description: [
+      In pool create, Aiken's `math.sqrt` is used to check for the correct
+      initial minting of LP tokens.
+      This function implements the recursive Babylonian method.
+      However, the expected value for the sqrt is already known, as it is
+      available in the minting field and in the datum.
+      Having the expected value, it is much more efficient to check that it is
+      correct by squaring it and comparing to the radicand:
+
+      `
+      /// Checks if an integer has a given integer square root x.
+      /// The check has constant time complexity (O(1)).
+      pub fn is_sqrt(self: Int, x: Int) -> Bool {
+        x * x <= self && ( x + 1 ) * ( x + 1 ) > self
+      }
+      `
+
+      See #link("https://github.com/aiken-lang/stdlib/pull/73")[this PR] for
+      more information.
+    ],
+    recommendation: [
+      First, define `initial_lq` by taking it from the minting field or from
+      the datum (`circulating_lp`).
+      Then, check that it is correct with `is_sqrt(coin_a_amt_sans_protocol_fees * coin_b_amt, initial_lq)`.
+    ],
+    resolution: [
+      Resolved in commit `XXXX`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+    ],
+  ),
 ))
