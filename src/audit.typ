@@ -284,6 +284,26 @@ The final state of the files for the purposes of this report is considered to be
     ],
   ),
   (
+    id: [SSW-202],
+    title: [Metadata output datum not checked in pool create],
+    severity: "Minor",
+    status: "Identified",
+    category: "Bug",
+    commit: "4a5f4f494665f7a110e89d5aa5425fd5cae2311a",
+    description: [
+      In pool create, no check is done on the datum that is paid to the metadata output.
+      If the payment is done with no datum and the metadata address set in the settings corresponds to a script, the UTxO will be locked forever and it will not be possible to set the metadata.
+    ],
+    recommendation: [
+      Ensure, at least, that the metadata output has a datum.
+      If the metadata address corresponds a script, this is a necessary condition for the UTxO to be spent.
+    ],
+    resolution: [
+      Resolved in commit `XXXX`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+    ],
+  ),
+  (
     id: [SSW-301],
     title: [Redundant parameters in process_order: outputs = output + rest_outputs],
     severity: "Info",
