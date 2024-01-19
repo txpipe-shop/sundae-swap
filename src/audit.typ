@@ -96,6 +96,7 @@ Code:
 
 Expected Failure Scenarios:
 
+- Pool output has the expected address: the pool script address
 - Quantities of both tokens of the pair are not a positive integer
 - Pool reference NFT is not paid to the metadata output
 - Pool NFT or specified quantity of both tokens of the pair are not paid to the pool script address
@@ -106,12 +107,16 @@ Expected Failure Scenarios:
   - Circulating LP property does not equal the minted quantity of LP tokens
   - Fees per ten thousand property is not a positive integer
   - Protocol fees is not a positive integer
-- Metadata output has a void datum
-- The settings UTxO has a token with the expected policy ID (parameter of the validator)
+- Metadata output does not have a void datum
+- The settings UTxO doesn't have a token with the expected policy ID (parameter of the validator)
 
 === Operation "scoop"
 
-Explanation of transaction here
+This transaction processes a batch of orders against a particular pool, performed by an authorized scooper.
+
+For each order input there is a related destination output that will contain the assets resulting from the processing of such order (plus a remainder in some cases *TODO list those cases*) and any other assets that were in the order and are not related with the pool. The only exception to this rule are Donation orders that have no reminder i.e. the liquidity ratio of the pool is preserved with the exact amounts provided in the donation.
+
+Both the Pool and Order validators are executed. They are attached to the transaction within reference inputs.
 
 #figure(
   image("img/scoop.png", width: 100%),
@@ -132,16 +137,19 @@ Expected Failure Scenarios:
 - In the pool datum, other field/s than `circulating_lp` is/are modified
 - Pool NFT is stolen from the Pool UTxO or burned
 - Pool pair amounts does not match the expected quantities given the specific processed orders
-- Pool output has an asset that was not in the Pool intput.
+- Pool output has a token that wasn't in the Pool input
 - TODO failure scenarios regarding fees
 - For each destination output. One of:
   - Is not paid to the destination address specified in the corresponding Order input
-  - The destination output doesn't have the datum specified in the corresponding Order input
+  - The destination output doesn't have the datum specified in the corresponding Order
   - The paid value is not consistent with the action defined in the corresponding Order
 - For each Order input. One of:
   - If the Order has pool identifier, it does not match with the identifier of the Pool being consumed
-  - If the Order is of the Strategy type and doesn't have a defined strategy execution, or if it has a strategy execution defined, is not signed by the expected party.
+  - If the Order is of the Strategy type and doesn't have a defined strategy execution, or if it has a strategy execution defined, is not signed by the expected party
+  - The assets contained in the Order does not contain the needed assets to perform the requested action over the Pool
 - The market is not open yet i.e. the tx validation range is not contained in the interval [market open POSIX time, +∞)
+- An incorrect amount of LP tokens are minted/burned if any, or the `circulating_lp` property of the Pool datum is not updated accordingly
+- There's no signature of an authorized scooper
 
 === Operation "withdraw fees"
 
