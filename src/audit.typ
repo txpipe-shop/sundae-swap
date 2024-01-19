@@ -240,8 +240,8 @@ The final state of the files for the purposes of this report is considered to be
     category: "Vulnerability",
     commit: "4a5f4f494665f7a110e89d5aa5425fd5cae2311a",
     description: [
-      The is no check on the pool output address where pool datum and value are
-      paid to. Without this check, a pool NFT can be minted and paid to any
+      There is no check on the pool output address where pool datum and value
+      are paid to. Without this check, a pool NFT can be minted and paid to any
       address, even a particular wallet. This token can be used later to scoop
       orders that are not directed to a specific pool and steal their funds.
     ],
@@ -266,6 +266,7 @@ The final state of the files for the purposes of this report is considered to be
       #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/4a5f4f494665f7a110e89d5aa5425fd5cae2311a/validators/pool.ak#L415")[415]).
       However, if ADA is not in the pair of assets (A, B), the output value
       will have four assets: A, B, ADA and the pool NFT.
+      Therefore, the validation fails and it is not possible to create the pool.
     ],
     recommendation: [
       A quick solution is to fix the check so it compares to 3 or 4 depending
