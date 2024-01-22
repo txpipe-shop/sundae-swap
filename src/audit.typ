@@ -153,8 +153,23 @@ Expected Failure Scenarios:
 
 === Operation "withdraw fees"
 
+Transaction description here.
+
+#figure(
+  image("img/withdraw_fees.png", width: 100%),
+  caption: [
+    Withdraw Fees diagram.
+  ],
+)
+
 Code:
 - #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/bcde39aa87567eaee81ccd7fbaf045543c233daa/validators/pool.ak#L234")[pool.ak:spend():WithdrawFees]
+
+Expected Failure Scenarios:
+
+- Check 1
+- Check 2
+- ...
 
 === Operation "create settings"
 
