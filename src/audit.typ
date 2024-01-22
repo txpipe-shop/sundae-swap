@@ -167,9 +167,12 @@ Code:
 
 Expected Failure Scenarios:
 
-- Check 1
-- Check 2
-- ...
+- Pool input address and Pool output address are distinct
+- In Pool output Datum, any other field than the protocol fees one is updated
+- The amount to withdraw specified within the redeemer does not match the amount of ADA taken from the Pool UTxO, or any of the other assets quantities of the UTxO change
+- The transaction is not signed by the treasury administrator
+- The treasury allowance part is not paid to the treasury address
+- The amount to withdraw is greater than the available protocol fees in the Pool UTxO
 
 === Operation "create settings"
 
