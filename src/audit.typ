@@ -195,9 +195,18 @@ Expected Failure Scenarios:
 
 === Operation "update settings"
 
-Explanation of transaction here
+This transaction colapses two updates of different nature: ones allowed to the settings administrator and other to the treasury administrator. Each one of those can update different fields of the settings datum.
 
-For simplicity we include here both redeemers SettingsAdminUpdate and TreasuryAdminUpdate.
+The two involved redeemers are:
+- `SettingsAdminUpdate` for the settings admin
+- `TreasuryAdminUpdate` for the treasury admin
+
+#figure(
+  image("img/update_settings.png", width: 100%),
+  caption: [
+    Update Settings diagram.
+  ],
+)
 
 Code:
 - #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/bcde39aa87567eaee81ccd7fbaf045543c233daa/validators/settings.ak#L8")[settings.ak:spend():SettingsAdminUpdate]
@@ -205,10 +214,21 @@ Code:
 
 Expected Failure Scenarios:
 
-- Check 1
-- Check 2
-- ...
-
+- There's a minting or burning happening in the transaction
+- The settings NFT is stolen from the settings UTxO
+- The settings input and output have different addresses
+- If the redeemer being executed is the `SettingsAdminUpdate`: other than the following fields are updated
+  - settings_admin
+  - metadata_admin
+  - treasury_admin
+  - authorized_scoopers
+  - base_fee, simple_fee, strategy_fee, pool_creation_fee
+  - extensions
+  else if `TreasuryAdminUpdate` is being executed, other than the following fields are updated:
+  - treasury_address
+  - authorized_staking_keys
+  - extensions?
+- The tx is not signed by the given administrator: `SettingsAdminUpdate` signed by settings admin, or `TreasuryAdminUpdate` by the treasury admin
 
 #pagebreak()
 
