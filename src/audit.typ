@@ -281,6 +281,31 @@ The final state of the files for the purposes of this report is considered to be
     ],
   ),
   (
+    id: [SSW-101],
+    title: [Settings datum size is limited forever by the initially locked ADA],
+    severity: "Major",
+    status: "Identified",
+    category: "Bug",
+    commit: "4a5f4f494665f7a110e89d5aa5425fd5cae2311a",
+    description: [
+      Once the protocol settings UTxO is created, it is not possible to change
+      the value locked into it, and in particular the min ADA required by
+      Cardano for storing the UTxO in the blockchain.
+      If an update in the settings requires storing a bigger datum, for
+      instance by adding elements to some of the stored lists, it may be
+      possible that the min ADA required is more than the locked one, making
+      the update impossible.
+    ],
+    recommendation: [
+      The spending validator for the settings UTxO should allow the possiblity
+      of changing the locked value at least for adding more ADA.
+    ],
+    resolution: [
+      Resolved in commit `XXXX`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+    ],
+  ),
+  (
     id: [SSW-201],
     title: [Create pool doesn't validate if ADA is not in the pair],
     severity: "Minor",
