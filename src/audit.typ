@@ -330,6 +330,31 @@ The final state of the files for the purposes of this report is considered to be
     ],
   ),
   (
+    id: [SSW-203],
+    title: [Create pool doesn't validate `fees_per_10_thousand` in pool output
+    datum],
+    severity: "Minor",
+    status: "Identified",
+    category: "Robustness",
+    commit: "4a5f4f494665f7a110e89d5aa5425fd5cae2311a",
+    description: [
+      In pool create, no checks are done on the `fees_per_10_thousand` field in
+      the pool output datum.
+      This field is a pair of integers that represent percentages with two
+      decimals.
+      If the integers are not in the range [0, 10000] they will not represent
+      valid percentage values.
+    ],
+    recommendation: [
+      Add the missing checks to ensure that the integers are in the correct
+      range.
+    ],
+    resolution: [
+      Resolved in commit `XXXX`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+    ],
+  ),
+  (
     id: [SSW-301],
     title: [Redundant parameters in process_order: outputs = output + rest_outputs],
     severity: "Info",
