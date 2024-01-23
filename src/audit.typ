@@ -355,6 +355,29 @@ The final state of the files for the purposes of this report is considered to be
     ],
   ),
   (
+    id: [SSW-204],
+    title: [No way to modify the list of authorized staking keys in the
+    protocol settings],
+    severity: "Minor",
+    status: "Identified",
+    category: "Bug",
+    commit: "4a5f4f494665f7a110e89d5aa5425fd5cae2311a",
+    description: [
+      Once the protocol settings UTxO is created, it is not possible to modify
+      the `authorized_staking_keys` field in the UTxO datum.
+      The spending validator is checking that this field is not changed both in
+      the cases of settings admin and treasury admin updates.
+    ],
+    recommendation: [
+      Depending on business requirements, device some way that the
+      `authorized_staking_keys` field could be updated.
+    ],
+    resolution: [
+      Resolved in commit `XXXX`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+    ],
+  ),
+  (
     id: [SSW-301],
     title: [Redundant parameters in process_order: outputs = output + rest_outputs],
     severity: "Info",
