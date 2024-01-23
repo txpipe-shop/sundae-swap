@@ -178,14 +178,20 @@ Expected Failure Scenarios:
 
 Explanation of transaction here
 
+#figure(
+  image("img/create_settings.png", width: 100%),
+  caption: [
+    Create Settings diagram.
+  ],
+)
+
 Code:
 - #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/bcde39aa87567eaee81ccd7fbaf045543c233daa/validators/settings.ak#L87")[settings.ak:mint()]
 
 Expected Failure Scenarios:
 
-- Check 1
-- Check 2
-- ...
+- The protocol boot UTxO is not being spent
+- More than one settings tokens is being minted, or any other asset
 
 === Operation "update settings"
 
