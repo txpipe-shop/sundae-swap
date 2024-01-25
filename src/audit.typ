@@ -92,7 +92,6 @@ The involved redeemers are:
 
 Code:
 - #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/bcde39aa87567eaee81ccd7fbaf045543c233daa/validators/pool.ak#L281")[pool.ak:mint():CreatePool]
-- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/bcde39aa87567eaee81ccd7fbaf045543c233daa/validators/pool.ak#L375")[pool.ak:mint():MintLP]
 
 Expected Failure Scenarios:
 
@@ -553,7 +552,7 @@ The final state of the files for the purposes of this report is considered to be
   ),
   (
     id: [SSW-306],
-    title: [Optimizable check for initial LP minting in create pool.],
+    title: [Optimizable check for initial LP minting in create pool],
     severity: "Info",
     status: "Identified",
     category: "Optimization",
@@ -582,6 +581,32 @@ The final state of the files for the purposes of this report is considered to be
       First, define `initial_lq` by taking it from the minting field or from
       the datum (`circulating_lp`).
       Then, check that it is correct with `is_sqrt(coin_a_amt_sans_protocol_fees * coin_b_amt, initial_lq)`.
+    ],
+    resolution: [
+      Resolved in commit `XXXX`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+    ],
+  ),
+  (
+    id: [SSW-307],
+    title: [Optimizable check for LP minting in scoop],
+    severity: "Info",
+    status: "Identified",
+    category: "Optimization",
+    commit: "fd3a48511eea723fe58d32e79993c86c26df0a94",
+    description: [
+      We understand that the idea in the current version of MintLP redeemer validation is to ensure that the UTxO
+      that contains the pool NFT i.e. the pool UTxO must be in the inputs because in its spending validator the
+      minting of LP tokens is controlled.
+
+      The issue with this check is that it is O(n): the worst case being when the pool UTxO is in the tail of the inputs and there are +20 orders. Given that this redeemer runs during a scoop validation, it is interesting to
+      optimize it as much as possible.
+    ],
+    recommendation: [
+      Instead of checking the presence of the pool NFT in the inputs, we can check its presence in the outputs given
+      that we can safely asume that the pool UTxO is the first output. This is O(1). But this is not sufficient:
+      we must also check that the pool NFT is not being minted in this same transaction. These two checks ensure that
+      the pool NFT is in the inputs.
     ],
     resolution: [
       Resolved in commit `XXXX`
