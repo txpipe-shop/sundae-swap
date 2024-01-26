@@ -613,4 +613,40 @@ The final state of the files for the purposes of this report is considered to be
       (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
     ],
   ),
+  (
+    id: [SSW-308],
+    title: [No checks on settings UTxO when it is created],
+    severity: "Info",
+    status: "Identified",
+    category: "Robustness",
+    commit: "4a5f4f494665f7a110e89d5aa5425fd5cae2311a",
+    description: [
+      The settings UTxO creation is validated through the minting policy of the
+      settings NFT token.
+      This policy only checks for the minting itself, ensuring that the token
+      name is correct and that the indicated UTxO is consumed (this way
+      enforcing an NFT).
+      There is no validation of where is this NFT being paid to, or anything
+      related to the creation of the settings UTxO.
+
+      However, the policy could also be checking for the creation of the
+      settings UTxO, including checks for the correct address, value and datum.
+      This pattern is known as the “base case” for the “inductive reasoning”
+      that can guarantee the consistency of the contract state through its
+      entire lifetime.
+
+      *Reference:*
+      Edsko de Vries, Finley McIlwaine.
+      #link("https://well-typed.com/blog/2022/08/plutus-initial-conditions/")[_Verifying initial conditions in Plutus_].
+    ],
+    recommendation: [
+      In the settings NFT minting policy, add checks to ensure that the
+      settings UTxO is correctly created.
+      This is, check the payment to the correct address, datum and value.
+    ],
+    resolution: [
+      Resolved in commit `XXXX`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+    ],
+  ),
 ))
