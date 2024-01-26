@@ -24,6 +24,39 @@
 #lorem(50)
 #pagebreak()
 
+= Specification
+
+== Main UTxOs
+
+=== Pool UTxO
+
+- Address: Hash of #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/78b43a2c27b506399adf2f1891eebe15a5aa67c6/validators/pool.ak#L55")[script] parameterized on settings Policy ID. All pools in the protocol have the same address.
+- Value:
+  - ADA: accumulated protocol fees (including min ADA)
+  - (A, B): pair of assets contained by the pool. A may be ADA.
+  - Pool NFT: minting policy parameterized on settings Policy ID.
+- Datum: #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/fd3a48511eea723fe58d32e79993c86c26df0a94/lib/types/pool.ak#L6")[`PoolDatum`]
+
+=== Order UTxO
+
+- Address: hash of script parameterized on stake script hash, the stake script parameterized on pool script hash. All orders in the protocol have the same address.
+- Value:
+  - ADA:
+  - Other:
+- Datum: #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/fd3a48511eea723fe58d32e79993c86c26df0a94/lib/types/order.ak#L7")[`OrderDatum`]
+
+
+=== Settings UTxO
+
+A single settings UTxO is used for the entire protocol.
+
+- Address: hash of script parameterized on the protocol boot UTxO.
+- Value:
+  - ADA: only min ADA.
+  - Settings NFT: minting policy parameterized on the protocol boot UTxO.
+- Datum: #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/fd3a48511eea723fe58d32e79993c86c26df0a94/lib/types/settings.ak#L12")[`SettingsDatum`]
+
+
 == Transactions
 #v(1em)
 Below are a list of valid and invalid transactions as diagrams that can be build to interact with Sundae Swap DEX.
