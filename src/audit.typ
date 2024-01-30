@@ -683,3 +683,20 @@ The final state of the files for the purposes of this report is considered to be
     ],
   ),
 ))
+
+
+= Reported issues
+
+- #link("https://github.com/SundaeSwap-finance/sundae-contracts/issues/37")[typo: continuout -> continuing \#37]
+
+- #link("https://github.com/SundaeSwap-finance/sundae-contracts/issues/38")[settings validator: use function to get spent output \#38]
+
+- #link("https://github.com/SundaeSwap-finance/sundae-contracts/issues/39")[unnecessary tuple definitions \#39]
+
+- #link("https://github.com/SundaeSwap-finance/sundae-contracts/issues/41")[compare_asset_class: camelCase to snake_case \#41]
+
+- #link("https://github.com/SundaeSwap-finance/sundae-contracts/issues/44")[testing code: replace "escrow" with "order" in definitions \#44]
+
+- #link("https://github.com/SundaeSwap-finance/sundae-contracts/issues/45")[pool validator: unused import TransactionId \#45]
+
+- #link("https://github.com/SundaeSwap-finance/sundae-contracts/issues/46")[settings type definition: unused import Output \#46]
