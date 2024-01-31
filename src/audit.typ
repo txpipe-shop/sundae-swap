@@ -11,7 +11,18 @@
 
 = Summary
 #v(1em)
-#lorem(50)
+This report provides a comprehensive audit of SundaeSwap V3, a decentralized
+exchange protocol that realizes an automated market maker (AMM) pooled
+liquidity model on the Cardano Blockchain.
+
+The investigation spanned several potential vulnerabilities, including
+scenarios where attackers might exploit the validator to lock up or steal
+funds.
+
+The audit is conducted without warranties or guarantees of the quality or
+security of the code.
+It's important to note that this report only covers identified issues, and we
+do not claim to have detected all potential vulnerabilities.
 #v(1em)
 
 == Overview
