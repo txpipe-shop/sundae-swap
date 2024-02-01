@@ -214,7 +214,7 @@ Expected Failure Scenarios:
 - In Pool output Datum, any other field than the protocol fees one is updated
 - The amount to withdraw specified within the redeemer does not match the amount of ADA taken from the Pool UTxO, or any of the other assets quantities of the UTxO change
 - The transaction is not signed by the treasury administrator
-- The treasury allowance part is not paid to the treasury address
+- The treasury part (withdraw amount minus allowance) is not paid to the treasury address
 - The amount to withdraw is greater than the available protocol fees in the Pool UTxO
 
 === Operation "create settings"
@@ -687,6 +687,45 @@ The final state of the files for the purposes of this report is considered to be
       In the settings NFT minting policy, add checks to ensure that the
       settings UTxO is correctly created.
       This is, check the payment to the correct address, datum and value.
+    ],
+    resolution: [
+      Resolved in commit `XXXX`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+    ],
+  ),
+  (
+    id: [SSW-309],
+    title: [Optimizable manipulation of values in `do_donation`],
+    severity: "Info",
+    status: "Identified",
+    category: "Optimization",
+    commit: "2487900eea2ea1d87f6e8a04707dcf039becd265",
+    description: [
+      The processing of donation orders could be optimized in its manipulation of values.
+      In particular, when computing the `remainder` variable the `value.merge` and `value.negate` functions are used (see #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/2487900eea2ea1d87f6e8a04707dcf039becd265/lib/calculation/donation.ak#L39-L44")), which are not particularly efficient.
+    ],
+    recommendation: [
+      Instead of using `value.merge` and `value.negate` it's possible to use `value.add` (a lot more efficient) to achieve the same effect.
+
+      For example:
+      ```
+      let remainder =
+        input_value
+          |> value.add(ada_policy_id, ada_asset_name, -actual_protocol_fee)
+          |> value.add(assets.1st.1st, assets.1st.2nd, -assets.1st.3rd)
+          |> value.add(assets.2nd.1st, assets.2nd.2nd, -assets.2nd.3rd)
+      ```
+      gives us better mem and cpu numbers in the 30 shuffled orders processing test.
+
+      The original implementation gives
+
+      `PASS [mem: 12571807, cpu: 4883611979] process_30_shuffled_orders_test`
+
+      while the version with just `value.add`'s
+
+      `PASS [mem: 10580319, cpu: 4281305949] process_30_shuffled_orders_test`
+
+      (numbers obtained with aiken version v1.0.21-alpha+4b04517)
     ],
     resolution: [
       Resolved in commit `XXXX`
