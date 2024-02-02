@@ -732,6 +732,37 @@ The final state of the files for the purposes of this report is considered to be
       (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
     ],
   ),
+  (
+    id: [SSW-310],
+    title: [Formula simplifications in `do_deposit`],
+    severity: "Info",
+    status: "Identified",
+    category: "Simplification",
+    commit: "2487900eea2ea1d87f6e8a04707dcf039becd265",
+    description: [
+      To compute the final amounts to be deposited, change is calculated in two
+      different ways depending on wich of the assets is the one that has a
+      change.
+      However, it is possible to skip the change definition and have simpler
+      formulas for the final amounts.
+    ],
+    recommendation: [
+      For the first case, where there is change in asset B, the deposited B
+      amount can be directly computed as:
+
+      `
+      pool_state.quantity_b.3rd * user_gives_a / pool_state.quantity_a.3rd
+      `
+
+      For the second case, where there is change in asset A, the deposited A
+      amount can be directly defined as `b_in_units_of_a`.
+
+    ],
+    resolution: [
+      Resolved in commit `XXXX`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+    ],
+  ),
 ))
 
 
