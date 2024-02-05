@@ -763,6 +763,39 @@ The final state of the files for the purposes of this report is considered to be
       (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
     ],
   ),
+  (
+    id: [SSW-311],
+    title: [Asymmetry of deposit operation],
+    severity: "Info",
+    status: "Identified",
+    category: "Theoretical",
+    commit: "2487900eea2ea1d87f6e8a04707dcf039becd265",
+    description: [
+      In abstract, the AMM model is defined over an unordered pair of assets
+      {A, B}, so all operations are symmetric in term of the roles of A and B.
+      In Sundae's implementation, the deposit operation is asymmetric at least
+      for some corner cases, as illustrated in the tests provided in
+      #link("https://github.com/SundaeSwap-finance/sundae-contracts/tree/francolq/ssw-311")[this branch].
+
+      This issue is related to the way that function `do_deposit` is
+      implemented and the rounding issues that arise when using integer
+      arithmetics.
+      The implementation can be easily modified to achieve symmetry.
+
+      Our understanding is that this finding is not exploitable beyond rounding
+      errors.
+      However, symmetry may be a desirable property as it puts the
+      implementation much closer to the theoretical model.
+    ],
+    recommendation: [
+      If the symmetry property is desired, modify `do_deposit` in a way that it
+      is guaranteed by the code.
+    ],
+    resolution: [
+      Resolved in commit `XXXX`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+    ],
+  ),
 ))
 
 
