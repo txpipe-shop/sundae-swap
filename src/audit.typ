@@ -499,7 +499,7 @@ The final state of the files for the purposes of this report is considered to be
     id: [SSW-302],
     title: [Redundant check for pool output stake credential in pool scoop validator],
     severity: "Info",
-    status: "Identified",
+    status: "Resolved",
     category: "Redundancy",
     commit: "bcde39aa87567eaee81ccd7fbaf045543c233daa",
     description: [
@@ -511,7 +511,10 @@ The final state of the files for the purposes of this report is considered to be
     recommendation: [
       Remove redundant check.
     ],
-    resolution: [Resolved in commit `XXXX`],
+    resolution: [
+      Resolved in commit `7acd97e69f82e328587abac00ace3d226bddd933`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/26")[PR \#26]).
+    ],
   ),
   (
     id: [SSW-303],
