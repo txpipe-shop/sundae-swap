@@ -799,6 +799,24 @@ The final state of the files for the purposes of this report is considered to be
       (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
     ],
   ),
+  (
+    id: [SSW-312],
+    title: [Optimizable manipulation of output value in `has_expected_pool_value`],
+    severity: "Info",
+    status: "Identified",
+    category: "Optimization",
+    commit: "2487900eea2ea1d87f6e8a04707dcf039becd265",
+    description: [
+      As stated in a code comment #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/2487900eea2ea1d87f6e8a04707dcf039becd265/validators/pool.ak#L519")[here], each `value.quantity_of`, `value.lovelace_of`, and also `has_exact_token_count` calls traverse the output value. This could be optimized by doing just one traversal of the entire value.
+    ],
+    recommendation: [
+      Instead of using `value.quantity_of`, `value.lovelace_of`, and `has_exact_token_count`, we can traverse the output value just once by converting it into a list and then using fold or a recursive function to perform all the needed checks throughout.
+    ],
+    resolution: [
+      Resolved in commit `XXXX`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+    ],
+  ),
 ))
 
 
