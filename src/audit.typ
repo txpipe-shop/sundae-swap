@@ -240,7 +240,7 @@ Expected Failure Scenarios:
 
 === Operation "update settings"
 
-This transaction colapses two updates of different nature: ones allowed to the settings administrator and other to the treasury administrator. Each one of those can update different fields of the settings datum.
+This transaction colapses two updates of different nature: ones allowed to the settings administrator and others to the treasury administrator. Each one of those can update different fields of the settings datum.
 
 The two involved redeemers are:
 - `SettingsAdminUpdate` for the settings admin
@@ -465,7 +465,7 @@ The final state of the files for the purposes of this report is considered to be
       the cases of settings admin and treasury admin updates.
     ],
     recommendation: [
-      Depending on business requirements, device some way that the
+      Depending on business requirements, devise some way that the
       `authorized_staking_keys` field could be updated.
     ],
     resolution: [
