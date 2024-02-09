@@ -219,7 +219,9 @@ Expected Failure Scenarios:
 
 === Operation "create settings"
 
-Explanation of transaction here
+This transaction creates a settings UTxO, which is then referenced by several pool operations that need those protocol settings as part of their validation.
+
+The UTxO contains a datum with the protocol settings, and its value has a NFT used to identify it, which is minted in this create transaction.
 
 #figure(
   image("img/create_settings.png", width: 100%),
