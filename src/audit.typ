@@ -52,8 +52,8 @@ do not claim to have detected all potential vulnerabilities.
 
 - Address: hash of script parameterized on stake script hash, the stake script parameterized on pool script hash. All orders in the protocol have the same address.
 - Value:
-  - ADA:
-  - Other:
+  - ADA: at least min ADA.
+  - Other: assets relevant to the order + others.
 - Datum: #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/fd3a48511eea723fe58d32e79993c86c26df0a94/lib/types/order.ak#L7")[`OrderDatum`]
 
 
