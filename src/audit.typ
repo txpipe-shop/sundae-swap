@@ -196,7 +196,7 @@ Expected Failure Scenarios:
 
 === Operation "withdraw fees"
 
-Transaction description here.
+This transaction allows the treasury administrator to take a specific amount of ADA from the UTxO pool accumulated there in protocol fees. This withdrawn amount is then paid to the treasury address minus a portion (the allowance) that this admin can pay wherever he wants.
 
 #figure(
   image("img/withdraw_fees.png", width: 100%),
