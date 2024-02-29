@@ -352,6 +352,34 @@ The final state of the files for the purposes of this report is considered to be
     ],
   ),
   (
+    id: [SSW-002],
+    title: [Pool output address is not correctly checked in scoop operation],
+    severity: "Critical",
+    status: "Identified",
+    category: "Vulnerability",
+    commit: "00d71b1ff06eac15284c191834926be2d6fe17ed",
+    description: [
+      The payment part of the output address is not being checked to be correct
+      under the "PoolScoop" redeemer.
+      Without this check, it is possible for a scooper to pay the pool funds
+      and datum to any payment key or script hash, effectively dismanlting the
+      pool and stealing the funds.
+
+      The required check was there at
+      #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/ca212dcefc36ef03c9f60d33efdd31db02d21e9b/validators/pool.ak#L211")[some point]
+      but it was lost while or after solving SSW-302.
+    ],
+    recommendation: [
+      Check that the pool ouput is paid to the pool script hash.
+      The check can be done a single time at the top-level of the validator so
+      it applies to both redeemers "PoolScoop" and "WithdrawFees".
+    ],
+    resolution: [
+      Resolved in commit `XXXX`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+    ],
+  ),
+  (
     id: [SSW-101],
     title: [Settings datum size is limited forever by the initially locked ADA],
     severity: "Major",
