@@ -333,7 +333,7 @@ The final state of the files for the purposes of this report is considered to be
     id: [SSW-001],
     title: [Create pool doesn't validate the pool output address],
     severity: "Critical",
-    status: "Identified",
+    status: "Resolved",
     category: "Vulnerability",
     commit: "4a5f4f494665f7a110e89d5aa5425fd5cae2311a",
     description: [
@@ -347,15 +347,15 @@ The final state of the files for the purposes of this report is considered to be
       the payment part of the output address equals the own policy ID.
     ],
     resolution: [
-      Resolved in commit `XXXX`
-      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+      Resolved in commit `d43f212d2a94507bbc7964757093b615c69a8d05`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/53")[PR \#53]).
     ],
   ),
   (
     id: [SSW-002],
     title: [Pool output address is not correctly checked in scoop operation],
     severity: "Critical",
-    status: "Identified",
+    status: "Resolved",
     category: "Vulnerability",
     commit: "00d71b1ff06eac15284c191834926be2d6fe17ed",
     description: [
@@ -375,8 +375,8 @@ The final state of the files for the purposes of this report is considered to be
       it applies to both redeemers "PoolScoop" and "WithdrawFees".
     ],
     resolution: [
-      Resolved in commit `XXXX`
-      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+      Resolved in commit `d43f212d2a94507bbc7964757093b615c69a8d05`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/53")[PR \#53]).
     ],
   ),
   (
@@ -437,7 +437,7 @@ The final state of the files for the purposes of this report is considered to be
     id: [SSW-202],
     title: [Metadata output datum not checked in pool create],
     severity: "Minor",
-    status: "Identified",
+    status: "Resolved",
     category: "Bug",
     commit: "4a5f4f494665f7a110e89d5aa5425fd5cae2311a",
     description: [
@@ -449,8 +449,8 @@ The final state of the files for the purposes of this report is considered to be
       If the metadata address corresponds a script, this is a necessary condition for the UTxO to be spent.
     ],
     resolution: [
-      Resolved in commit `XXXX`
-      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+      Resolved in commit `b731c1f5e16cf5be0d39dabae0246eba728ea3ad`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/55")[PR \#55]).
     ],
   ),
   (
@@ -730,7 +730,7 @@ The final state of the files for the purposes of this report is considered to be
     id: [SSW-309],
     title: [Optimizable manipulation of values in `do_donation`],
     severity: "Info",
-    status: "Identified",
+    status: "Resolved",
     category: "Optimization",
     commit: "2487900eea2ea1d87f6e8a04707dcf039becd265",
     description: [
@@ -761,8 +761,8 @@ The final state of the files for the purposes of this report is considered to be
       (numbers obtained with aiken version v1.0.21-alpha+4b04517)
     ],
     resolution: [
-      Resolved in commit `XXXX`
-      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+      Resolved in commit `30f4d17cacc3fa9d8bc7a6d85ecae4eb4772e8a4`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/61")[PR \#61]).
     ],
   ),
   (
