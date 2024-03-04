@@ -865,3 +865,12 @@ The final state of the files for the purposes of this report is considered to be
 - #link("https://github.com/SundaeSwap-finance/sundae-contracts/issues/45")[pool validator: unused import TransactionId \#45]
 
 - #link("https://github.com/SundaeSwap-finance/sundae-contracts/issues/46")[settings type definition: unused import Output \#46]
+
+
+= Contributed PRs
+
+- #link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/48")[New Aiken test for process_orders with 30 shuffled donation orders \#48]
+
+- #link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/52")[has_expected_pool_value traverses output value just once \#52]
+
+- #link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/64")[Optimization for count_orders \#64]
