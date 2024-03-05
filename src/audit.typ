@@ -631,7 +631,7 @@ The final state of the files for the purposes of this report is considered to be
     id: [SSW-306],
     title: [Optimizable check for initial LP minting in create pool],
     severity: "Info",
-    status: "Identified",
+    status: "Resolved",
     category: "Optimization",
     commit: "4a5f4f494665f7a110e89d5aa5425fd5cae2311a",
     description: [
@@ -660,15 +660,15 @@ The final state of the files for the purposes of this report is considered to be
       Then, check that it is correct with `is_sqrt(coin_a_amt_sans_protocol_fees * coin_b_amt, initial_lq)`.
     ],
     resolution: [
-      Resolved in commit `XXXX`
-      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+      Resolved in commit `12a55dab0bdddd8d8eba6c1d98ef75c3b5f95747`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/58")[PR \#58]).
     ],
   ),
   (
     id: [SSW-307],
     title: [Optimizable check for LP minting in scoop],
     severity: "Info",
-    status: "Identified",
+    status: "Resolved",
     category: "Optimization",
     commit: "fd3a48511eea723fe58d32e79993c86c26df0a94",
     description: [
@@ -686,15 +686,15 @@ The final state of the files for the purposes of this report is considered to be
       the pool NFT is in the inputs.
     ],
     resolution: [
-      Resolved in commit `XXXX`
-      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+      Resolved in commit `db3d33e3a22a28a7c1e7abfcb798e00e68427ff6`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/59")[PR \#59]).
     ],
   ),
   (
     id: [SSW-308],
     title: [No checks on settings UTxO when it is created],
     severity: "Info",
-    status: "Identified",
+    status: "Resolved",
     category: "Robustness",
     commit: "4a5f4f494665f7a110e89d5aa5425fd5cae2311a",
     description: [
@@ -722,8 +722,8 @@ The final state of the files for the purposes of this report is considered to be
       This is, check the payment to the correct address, datum and value.
     ],
     resolution: [
-      Resolved in commit `XXXX`
-      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+      Resolved in commit `f007b795e9e49a38e0b3f00355d4f97ce1e27c3a`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/60")[PR \#60]).
     ],
   ),
   (
