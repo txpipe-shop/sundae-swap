@@ -1,0 +1,803 @@
+--------------------------------------------
+DISCUSSION LEADING TO FINDING SSW-301
+
+francolq — 01/04/2024 7:35 PM
+I am working on understanding all the parameters for functions process_orders and process_order.
+
+First thing I see is some redundancy in last three parameters of process_order: output, outputs, and rest_outputs. It looks like it is always the case that [output] + rest_outputs = outputs. If I am right, only the outputs parameter is necessary.
+
+Quantumplation — 01/04/2024 7:36 PM
+This is likely done for performance, to avoid destructuring the list an extra time
+this is highly performance sensitive code, so even a few saved mem units can make a huge difference
+I think at one point we used something from output in process_orders (n.b. plural), so we needed to destructure there, and then we passed both lists down to the sub handler, but it looks like that's no longer the case 
+so we could probably move the list destructure into process_order (n.b. singular) instead
+
+
+Quantumplation — 01/10/2024 7:50 PM
+@ignacio.dopazo for SSW-301, would it be better to pass output, rest_outputs to the process_order function (given that we recursively call process_order for strategies)? or should we pass outputs, and only destructure on each of the other 4 match cases?
+
+Quantumplation — 01/10/2024 10:06 PM
+I'll get a fix for SSW-301 up too, but I'm not sure which of these would result in better perf; is it better to pass fewer parameters, in favor of duplicating the destructure in 4 places (each of which would only run once), or destructure in one place and pass in 2 parameters
+
+francolq — 01/11/2024 2:34 PM
+Hi Pi! Sorry for the delay in the answer, I am in favour of passing fewer parameters, for me code simplicity is very important, if the price in terms of script size, mem and CPU is affordable
+But this is your decision
+
+Quantumplation — 01/11/2024 3:06 PM
+I didn't know if you had a sense of how big an impact it would make on me. Maybe @Microproofs ?
+
+Quantumplation — 01/11/2024 3:06 PM
+I'm not sure it's simpler code, because it would mean we do 4 different destructures 
+
+francolq — 01/11/2024 3:13 PM
+process_orders will be simpler and for me it is somehow the backbone of the code so it is worth to have the destructuring in the "lower" functions, if necessary
+also conceptually, I understand that sometimes it is necessary to take and output and sometimes no, I wonder if it is possible in the future that some new type of order can take more than one output
+
+Quantumplation — 01/11/2024 3:29 PM
+we thought about that, but it makes things really complicated lol; so for this version of the contracts it's probably not the case, but a future version might do so
+we have to draw the line in the sand somewhere, or we'll be building sundae v3 for the next 5 years lol
+
+Microproofs — 01/11/2024 3:45 PM
+destructure once is typically better. But obviously depends on case 
+
+Quantumplation — 01/11/2024 3:46 PM
+well, the choice here is between:
+destructure once, and pass 2 parameters
+vs
+destructure once (just, in 4 different places depending on which branch you go down), and pass 1 parameter
+
+Microproofs — 01/11/2024 3:49 PM
+The thing with 2 parameters is depending on the occurrences  of that function like only once it might end up inlined anyway
+
+Quantumplation — 01/11/2024 3:52 PM
+it's recursive; I'll benchmark it later if I get a chance though
+
+Quantumplation — 01/11/2024 7:20 PM
+@ignacio.dopazo @Microproofs of you're curious
+
+new:
+  30 => { cpu: 5096140742, mem: 12876172 },
+  31 => { cpu: 5275802156, mem: 13322221 },
+  32 => { cpu: 5456646896, mem: 13770876 }
+
+old:
+  30 => { cpu: 5041941080, mem: 12802274 },
+  31 => { cpu: 5219854930, mem: 13245935 },
+  32 => { cpu: 5398952106, mem: 13692202 }
+About a 1% increase from the changes for SSW-301
+Specifically we had a function that was destructing then passing in (orders, next_order, rest_orders).
+
+Dropping to one parameter and destructing in 4/5 branches of a match instead was the change we made
+
+--------------------------------------------
+DISCUSSION LEADING TO FINDING SSW-305
+
+francolq — 01/04/2024 7:45 PM
+I have a second question just to check I am on the right path: in process_orders the total_fee is calculated as part of the recursion, is it right to say that at the end its value is "amortized_base_fee * order_count + simple_fee * simple_count + strategy_fee * strategy_count" 
+?
+
+Quantumplation — 01/04/2024 7:57 PM
+See pool.ak lines 174 through 189, they explain this pretty thoroughly, though can probably be improved.
+
+The goal is to enforce that:
+every order is processed exactly once
+we are agnostic of the order script address (i.e. we make an assumption about the script inputs that can be included in a scoop: 1 pool, and N orders; process_orders enforces at most once, and line 177 enforces at least once; and then destructuring the datum enforces that it's an order instead of, say, another pool)
+base_fee is paid approximately once (see the note on rounding), spread across each input order evenly
+the correct fee for each order is paid depending on the order type is paid (simple_fee for simple orders, and strategy_fee for strategy orders)
+
+At one point I think we were trying to avoid having to scan over the inputs to count the orders (hence why we pass in the amortized_base_fee), but now that you raise it, it might be possible to remove that, count the orders first, and then pass in amortized_base_fee (with rounding) from that, rather than having the scooper count it. 
+
+--------------------------------------------
+DISCUSSION ABOUT THE NEED FOR SingletonValue IN ORDER DATUMS
+
+Quantumplation — 01/15/2024 5:58 PM
+@francolq one thing I noticed over the weekend
+is that we might be able to save more by removing pool_state, and just passing those fields directly down
+as we do a destructure of the pool state / singleton value for each swap
+seems like it could be a huge win, tbh; do you think it's worth it, or is that going to make the code way too nightmarish?
+
+francolq — 01/15/2024 6:09 PM
+I agree with that change
+I was thinking about the type PoolState, without any strong conclusion yet, but some feelings
+
+Quantumplation — 01/15/2024 6:14 PM
+ok, i'm prototyping it on a branch right now
+
+francolq — 01/15/2024 6:16 PM
+something very related I wanted to ask you, is the need for SingletonValue instead of integer in several places
+and in particular for quantity_a, quantity_b and quantity_lp in the PoolState
+well, maybe specifically here is justified
+
+francolq — 01/15/2024 6:25 PM
+in the orders, I guess you need SingletonValue only when pool_ident is None, because when pool_ident is defined, all assets in all operations are clearly defined, am I right?
+
+Quantumplation — 01/15/2024 6:38 PM
+we need to make sure that the asset IDs are the ones we're swaping for; i.e. if I swap 100 ADA, i'm not swapping 100 ADA for "any token"; i'm swapping it specifically for RBERRY.
+
+So I need to know the asset ID and the amounts. and SingletonValue was a convenient way to bundle them
+I'm unpacking that into parameters, though leaving it for the order datum
+
+francolq — 01/15/2024 6:52 PM
+if you place the swap order on a specific pool (i.e. with a defined pool_ident) there is no need for SingletonValue as the pool has already a fixed pair.
+so I understand you need SingletonValue when you don't specifiy the pool in the order 
+that's what I understand so far
+
+Quantumplation — 01/15/2024 6:55 PM
+oh right, i read your message backwards; I thought you were saying you don't need it when pool_ident is none
+but yea; also we're probably hitting diminishing returns for number of orders processed
+
+francolq — 01/15/2024 6:56 PM
+ok, and is it important for you to have this "open" orders that can be processed by any pool, right?
+well, not "by any" but "by any that is able to"
+
+Quantumplation — 01/15/2024 7:03 PM
+yes, I believe so; It lets use implement a feature whereby the user can let the scooper route the order to an acceptable pool if it's open
+for example, if one pool is super congested, some users might be ok with a worse price, but to skip the queue
+
+--------------------------------------------
+UNFINISHED DISCUSSION ABOUT AN IDEA TAKEN FROM MINSWAP CODE
+
+Quantumplation — 01/17/2024 6:14 PM
+@francolq was reading through minswaps open source contracts, and they use a trick where they count the number of scripts by checking the redeemers, instead of looping over the inputs
+Does that work for us too?
+or maybe not, because it will include the staking script, and the minting policy too, right?
+
+francolq — 01/17/2024 6:21 PM
+not sure, we can take a look, can you link me to minswap code?
+
+Quantumplation — 01/17/2024 8:13 PM
+https://github.com/minswap/minswap-stableswap/blob/main/validators/pool_validator.ak#L309-L310
+
+--------------------------------------------
+DISCUSSION LEADING TO FINDINGS SSW-001 AND SSW-201
+
+francolq — 01/18/2024 6:19 PM
+hi @Quantumplation we are taking a look at the create pool validation
+I think we have two relevant findings 
+quick comment here until I finish writing them in the report
+
+Quantumplation — 01/18/2024 6:20 PM
+Awesome 🙂 I know there's at least one in there that I haven't fixed yet, so I'm not surprised
+
+francolq — 01/18/2024 6:21 PM
+this check:
+list.length(value.flatten(pool_output.value)) <= 3
+doesn't work if you want to create a pool with a pair that doesn't include ADA
+there is no check over pool_output.address
+so the pool datum and value could be paid anywhere
+
+Quantumplation — 01/18/2024 6:24 PM
+ok, yea, this is the one I was thinking of 😅 noticed it the other day while I was fixing the redundant staking address thing, and didn't get around to fixing it
+
+francolq — 01/18/2024 6:24 PM
+I think both classify as minor severity
+just pushed the first one: "Minor finding SSW-201: Create pool doesn't validate if ADA is not in the pair"
+
+Quantumplation — 01/18/2024 6:32 PM
+the latter is probably Critical or at least Major; with it you could get a free pool token which could be used to steal order UTXOs
+
+francolq — 01/18/2024 6:32 PM
+hmm yes
+
+francolq — 01/18/2024 6:43 PM
+yes, just double checked, I would definitely say Critical
+
+francolq — 01/18/2024 6:59 PM
+if you think it is worth, we could work on simulating an exploit of this vulnerability using the lucid emulator
+
+Quantumplation — 01/18/2024 7:01 PM
+no, I think it's pretty clear that there is a vulnerability; we'll add it to the test cases that @card is working on
+
+--------------------------------------------
+DISCUSSION ABOUT ASSUMPTIONS ON THE ORDERING OF REFERENCE INPUTS
+
+francolq — 01/24/2024 3:47 PM
+hello @Quantumplation ! We are taking a look at the usage of reference inputs. We see you are assuming that the settings UTxO is the first ref input, always before the ref inputs for the order and pool scripts.
+How do you ensure this? We understand it can be done at start with some "farming" but @ignacio.dopazo  detected that if there is a settings update, the settings UTxO will change and it may stop being the first one lexicographically.
+Did you contemplate this possiblity? I guess it means that the "farming" should also be done on every settings update
+
+Quantumplation — 01/24/2024 3:57 PM
+yea, that's our current plan; though we'd do it the other way: farm the reference scripts so that they had very "high" tx hashes, like starting with ffff, so we'd be able to update the settings more easily
+I can describe this in our whitepaper / comments to make it clear 
+
+francolq — 01/24/2024 4:19 PM
+ok! yes, in my opinion it deserves a comment somewhere in the documentation
+
+Quantumplation — 01/24/2024 4:19 PM
+will do 🙂 thanks for highlighting
+
+Quantumplation — 01/24/2024 5:36 PM
+@francolq another way to address this is to just pay out the settings UTXO and all the reference scripts in the same transaction, so that output 0 is the settings UTXO, output 1+ are the reference scripts.
+
+In this way, we can control the order they're in, without farming, and if we update the settings UTXO, we just spend the script references at the same time.
+
+francolq — 01/24/2024 5:37 PM
+in that case you will need a validator for the spending of the script ref UTxOs, right?
+
+Quantumplation — 01/24/2024 5:38 PM
+yes, but those will likely just be held in a wallet; they're not sensitive, since any of the scoopers could publish their own script references if we ever "went rogue"
+
+francolq — 01/24/2024 5:38 PM
+I was thinking you can just stop assuming it is first ref input and add an index for it in the redeemer
+
+Quantumplation — 01/24/2024 5:39 PM
+maybe, but that involves a recursion, increases the size of the redeemer, etc.
+
+francolq — 01/24/2024 5:40 PM
+yes, well as long as it is well documented, I think it is ok as it is right now
+
+Quantumplation — 01/24/2024 5:41 PM
+it's also not something we're doing for every single order, so it isn't a big performance hit if we have to change it
+but if there's not a security concern, then it's nice to save a tiny bit 😅
+
+Quantumplation — 01/24/2024 5:43 PM
+this also relies on scripts being small enough to fit in one transaction though heh
+
+francolq — 01/24/2024 5:43 PM
+true
+
+--------------------------------------------
+TECHNICAL DISCUSSION ABOUT USING LISTS OF PAIRS IN AIKEN
+
+Quantumplation — 01/24/2024 4:51 PM
+btw @francolq another small tweak we have to make: https://github.com/SundaeSwap-finance/sundae-contracts/pull/40
+
+Basically, the haskell / plutus / aiken serialization for lists of tuples gets serialized as a map; but the cbor spec technically forbids maps from relying on the ordering of the keys; so most default serializers across different languages end up sorting the map key order, and this would screw up the execution order of things
+in theory, I wish Aiken would just treat List<(a,b)> as lists, and use Dict<...> or AssocList<...> for things that serialize as maps, using those in the script context where appropriate
+cause this is a pretty subtle gotcha; even after 7 months of extensive testing (5500 orders processed on preview so far), we didn't run into it until just yesterday
+
+francolq — 01/24/2024 4:54 PM
+oh ok, I see you had to introduce this new type InputOrderItem
+did you measure the impact in terms of mem/cpu?
+
+Quantumplation — 01/24/2024 4:54 PM
+not yet
+@ruko is going to do that soon, I think
+
+francolq — 01/24/2024 4:55 PM
+ok! just curious about it
+
+Quantumplation — 01/24/2024 4:55 PM
+it should be very similar, because it's the same number of destructuring, etc.; it makes the cbor slightly bigger, but I don't think that'll have a huge impact
+
+francolq — 01/24/2024 4:56 PM
+hope so
+
+francolq — 01/24/2024 5:01 PM
+sorry, I have a question, do you mean that something like [(2, None), (1, None), (3, None)] could be converted into [(1, None), (2, None), (3, None)] after serialization/deserialization?
+
+Quantumplation — 01/24/2024 5:05 PM
+yes, depending on the language the serializer is in, if you rely on the default cbor serializer.
+
+For example, to get the go CBOR serializer to serialize this list as a map, we had to express it as a map[int]execution in our go code; and even if we inserted things as (2,1,3), it'd end up serializing as (1,2,3).
+
+This never came up for us, because the way we were doing load tests just happened to always produce orders in increasing order (we'd process a batch all from the same txHash with incrementing output numbers).  But as soon as we had something that needed to go out of order, it started failing.
+
+If we made that field an array, it would serialize as an array, and aiken wouldn't be able to parse it
+because aiken requires that List<(a,b)> be a map
+so we'd have had to end up writing a custom serializer in go
+so if this impacts our throughput meaningfully, we might still go that route
+
+francolq — 01/24/2024 5:07 PM
+thanks, honestly I didn't know Aiken was doing this
+
+Quantumplation — 01/24/2024 5:07 PM
+yea, it's really subtle, make sure you add it to the list of things to consider during audits 😅
+another approach we considered was changing the type to List<(a,b,())>; a three-tuple won't serialize this way, I believe, and the () might be lower overhead
+but not sure
+
+Quantumplation — 01/24/2024 8:44 PM
+turns out it hurt us enough to drop us down by one order max size, so we tried out the other approach here:
+https://github.com/SundaeSwap-finance/sundae-contracts/pull/43
+
+This is slightly faster than the 2-tuple version, strangely enough
+
+francolq — 01/24/2024 9:26 PM
+Interesting, maybe the 2-tuple version has an overhead because of the map encoding
+
+Quantumplation — 01/24/2024 9:32 PM
+yep I think so
+
+--------------------------------------------
+DISCUSSION ABOUT OPTIMIZING THE INDEXING OF THE INPUTS LIST
+
+francolq — 01/24/2024 5:43 PM
+the conversation about the input_order list is driving me to a second question related to the optimizations you did in process_orders for obtaining the inputs (remaining_inputs parameter, etc.)
+I guess in a realistic scenario it is to be expected that the inputs are randomly sorted, right?  could you verify experimentally that these optimizations help in randomly sorted inputs?
+
+Quantumplation — 01/24/2024 6:11 PM
+I thought I read some research on this, but I can't find it now; just wrote a quick empirical test for it, that counted:
+the length of the longest "monotonic slice"
+the sum of (length of each monotonic slice - 1); i.e. the number of times we'll step forward with remaining_inputs instead of all_inputs
+the number of saved builtin.tail_lists (i.e. if we had started over from all_inputs and skiped to the jth index, how many wasted skips would we have performed)
+
+Then prints out the avg, min, and max. Please double check my implementation though, it's a bit subtle to think through.
+
+function shuffle(array) {
+  let currentIndex = array.length,  randomIndex;
+
+  // While there remain elements to shuffle.
+  while (currentIndex > 0) {
+
+    // Pick a remaining element.
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    // And swap it with the current element.
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex], array[currentIndex]];
+  }
+
+  return array;
+}
+
+let longest_consecutive_sequences = [];
+let sum_consecutive_sequences = [];
+let saved_recursions = [];
+
+for(let i = 0; i < 1000000; i++) {
+  let sequence = Array(40).fill().map((_, index) => index)
+  shuffle(sequence)
+  let longest_consecutive_sequence = 1;
+  let current_consecutive_sequence = 1;
+  let sum_consecutive_sequence = 0;
+  let prev_element = -1;
+  let saved_rec = 0;
+  for(let j = 0; j < sequence.length; j++) {
+    let j_elem = sequence[j];
+    if(j_elem < prev_element) {
+      if(current_consecutive_sequence > longest_consecutive_sequence) {
+        longest_consecutive_sequence = current_consecutive_sequence
+      }
+      if (current_consecutive_sequence > 1) {
+        sum_consecutive_sequence += current_consecutive_sequence - 1
+      }
+      current_consecutive_sequence = 1;
+      prev_element = j_elem;
+      continue
+    } else {
+      current_consecutive_sequence += 1;
+      prev_element = j_elem;
+      saved_rec += j
+    }
+  }
+  saved_recursions.push(saved_rec)
+  sum_consecutive_sequences.push(sum_consecutive_sequence)
+  longest_consecutive_sequences.push(longest_consecutive_sequence);
+}
+console.log("avg seq", longest_consecutive_sequences.reduce((a, b) => a + b, 0) / longest_consecutive_sequences.length)
+console.log("min seq", longest_consecutive_sequences.reduce((a, b) => a < b ? a : b, 999))
+console.log("max seq", longest_consecutive_sequences.reduce((a, b) => a > b ? a : b, 0))
+
+console.log("avg sum", sum_consecutive_sequences.reduce((a, b) => a + b, 0) / sum_consecutive_sequences.length)
+console.log("min sum", sum_consecutive_sequences.reduce((a, b) => a < b ? a : b, 999))
+console.log("max sum", sum_consecutive_sequences.reduce((a, b) => a > b ? a : b, 0))
+
+console.log("avg saved", saved_recursions.reduce((a, b) => a + b, 0) / saved_recursions.length)
+console.log("min saved", saved_recursions.reduce((a, b) => a < b ? a : b, 99999999))
+console.log("max saved", saved_recursions.reduce((a, b) => a > b ? a : b, 0))
+
+
+Across a million runs, this gives:
+avg seq 4.079384
+min seq 2
+max seq 11
+avg sum 19.784143
+min sum 11
+max sum 29
+avg saved 390.033646
+min saved 178
+max saved 591
+
+
+meaning, on average, we save 390 builtin.tail_lists, I think.
+I get similar results for batch sizes of size 37 too
+And if the protocol parameters increase slightly and we can fit 50 orders, we save an average of 612 skips
+good to put these stats in the whitepaper, if you confirm my implementation is correct
+
+francolq — 01/30/2024 9:20 PM
+I am thinking about an alternative to the remaining_inputs optimization. The goal is to have a very fast way to index the all_inputs list. The ideal solution would be to build a binary search tree (lot of work, not sure if it will work in practice). A simpler solution that is easy to try is to have a list with the 2nd half of the inputs list, say "snd_half_inputs" (instead of remaining_inputs). When looking for the input, then index on "all_inputs" if it is in the 1st half, or index on "snd_half_inputs" if it is in the 2nd half.
+
+Quantumplation — 01/30/2024 9:30 PM
+at this point i'm less concerned with micro-optimizations; If there's an easy way to get a big win, for sure, but i'm not sure if this would save over the existing contracts, and 37 orders is already a big improvement
+
+francolq — 01/30/2024 10:11 PM
+Yes, sure, sometimes I can't help myself with optimizations 🙂 This is one of the last ones. In this case I think it would also contribute to code simplicity,  so I think it is worth a shot.
+
+Quantumplation — 01/30/2024 10:34 PM
+how would you find "half the list"? just an initial scan first?
+
+francolq — 01/30/2024 11:18 PM
+I think a call to unsafe_fast_index_skip_with_tail(inputs, total_inputs / 2)
+will return the second half
+
+Quantumplation — 01/31/2024 12:36 AM
+We don't have a count of inputs, do we?
+
+francolq — 01/31/2024 1:34 AM
+hmm no, but I guess it can be done together with count_orders
+
+francolq — 01/31/2024 4:03 PM
+@Quantumplation I could do a quick test of the "half list" idea
+with the original code:
+    │ PASS [mem: 17142175, cpu: 6699341695] process_30_shuffled_orders_test
+with the half list:
+    │ PASS [mem: 17072969, cpu: 6676825710] process_30_shuffled_orders_test
+I can push that in an "experimental" branch if you want to take a look
+
+Quantumplation — 01/31/2024 4:05 PM
+so we save about 0.4% of the max budget 😅
+on memory anyway
+(17142175 - 17072969) / 14000000
+
+francolq — 01/31/2024 4:06 PM
+yes, but I think something good is that it is stable, it is not sensitive to the shuffling of the orders
+for n orders it always saves (n / 2)^2  tail operations
+
+Quantumplation — 01/31/2024 4:07 PM
+how does it impact things if the orders are in sorted order?
+
+francolq — 01/31/2024 4:07 PM
+let me see
+│ PASS [mem: 16752165, cpu: 6548794822] process_30_shuffled_orders_test
+this is in sorted order for the original code (with remaining_inputs)
+
+francolq — 01/31/2024 4:14 PM
+the half list optimization is the same as before:
+    │ PASS [mem: 17072969, cpu: 6676825710] process_30_shuffled_orders_test
+if the expectation is that the input_orders is sorted, the remaining_inputs approach is more efficient
+
+Quantumplation — 01/31/2024 4:17 PM
+so:
+in the average case, your solution is about 0.4% more efficient (not enough to get us an extra order)
+in the optimal case, our solution is about 2.2% more efficient (likely enough for an extra order or two)
+
+So while most of the time the orders will be shuffled, when we can sort them (i.e. all of the pre-launch orders from a given token, or if the DAO votes to relax the FCFS requirement under load), we can fit a few more orders and burn through that load faster
+
+francolq — 01/31/2024 4:20 PM
+out of curiosity, this is the worst case, a reversed input_orders list:
+    │ PASS [mem: 17251431, cpu: 6735306647] process_30_shuffled_orders_test
+
+Quantumplation — 01/31/2024 4:22 PM
+for which, our impl or yours?
+francolq — 01/31/2024 4:22 PM
+for yours, with remaining_inputs
+with half_list it is always the same
+it is insensitive to the sorting order
+I think it is ok, you have strong arguments for your version!
+as a side comment, Lucas shared me this binary search tree, you may find it interesting:
+https://github.com/aiken-lang/trees/blob/main/lib/aiken/trees/bst.ak
+
+Quantumplation — 01/31/2024 4:26 PM
+nods my guess is that the sizes of txs are going to be such that the asymptotics never make such a tree worth it, but it's good to have an implementation heh
+
+francolq — 01/31/2024 4:27 PM
+I agree 🙂
+
+--------------------------------------------
+DISCUSSION ABOUT COUNTING ORDERS LOGIC AND DOUBLE SATISFACTION (SEE ALSO: https://github.com/SundaeSwap-finance/sundae-contracts/issues/47)
+
+
+Quantumplation — 01/29/2024 8:52 PM
+@francolq responded to your github issue, and I disagree
+I think the name count_orders is actually correct, and important for clarity
+i.e. the consuming code cares about the count of orders; it doesn't care about the count of script inputs. So if you're reviewing a block of code for correctness, it better expresses the intent of the code
+it's just an implementation detail that an efficient way to count the number of orders is to count the script inputs minus 1
+
+francolq — 01/30/2024 1:11 AM
+hello Pi! For me it is not an implementation detail that the function counts script inputs - 1, because the result will be different if there are extra script inputs that are not orders or the pool itself. When reading the code, I was wondering if the scooper was allowed to do this or not, because extra script inputs may enable attacks such as double satisfaction (maybe with another pool input). With the name "count_orders" I thought at first that these extra script inputs were not being counted. But then reading the implementation I found that they are actually counted, meaning that the check ´expect simple_count + strategy_count == real_order_count´ not only implies that there is no under-reporting but also that there are no extra "unrelated" script inputs. 
+
+Quantumplation — 01/30/2024 1:27 AM
+well, that's because you're reading it as an auditor.
+
+From the meaning of the code, we use count_orders to calculate the amortized script fee. The number of script inputs is meaningless to that value, we're not splitting the base fee among every script input, we're splitting it among every order.
+
+The "correct" way to implement count_orders would be to traverse over each of the inputs, and check if it has the order datum attached; it just so happens that that will always (in our scripts) be equivalent to the number of script inputs minus 1; and in fact, the script will fail for other reasons if they are different.
+
+So it's and important property, for sure, especially to an auditor checking correctness of the code, which is why there's like, a full dissertation in the comments of the function 😅
+
+But to someone trying to understand why the contracts do what they do, IMO count_orders is a lot clearer and true to the intention of the function
+
+francolq — 01/30/2024 8:09 PM
+hello @Quantumplation !! all ok with issue #47, time to move on to other stuff
+
+
+--------------------------------------------
+DISCUSSION ABOUT remaining_inputs OPTIMIZATION
+
+francolq — 01/30/2024 9:20 PM
+I am thinking about an alternative to the remaining_inputs optimization. The goal is to have a very fast way to index the all_inputs list. The ideal solution would be to build a binary search tree (lot of work, not sure if it will work in practice). A simpler solution that is easy to try is to have a list with the 2nd half of the inputs list, say "snd_half_inputs" (instead of remaining_inputs). When looking for the input, then index on "all_inputs" if it is in the 1st half, or index on "snd_half_inputs" if it is in the 2nd half.
+
+Quantumplation — 01/30/2024 9:30 PM
+at this point i'm less concerned with micro-optimizations; If there's an easy way to get a big win, for sure, but i'm not sure if this would save over the existing contracts, and 37 orders is already a big improvement
+
+francolq — 01/30/2024 10:11 PM
+Yes, sure, sometimes I can't help myself with optimizations 🙂 This is one of the last ones. In this case I think it would also contribute to code simplicity,  so I think it is worth a shot.
+
+Quantumplation — 01/30/2024 10:34 PM
+how would you find "half the list"? just an initial scan first?
+
+francolq — 01/30/2024 11:18 PM
+I think a call to unsafe_fast_index_skip_with_tail(inputs, total_inputs / 2)
+will return the second half
+
+Quantumplation — 01/31/2024 12:36 AM
+We don't have a count of inputs, do we?
+
+francolq — 01/31/2024 1:34 AM
+hmm no, but I guess it can be done together with count_orders
+
+francolq — 01/31/2024 4:03 PM
+@Quantumplation I could do a quick test of the "half list" idea
+with the original code:
+    │ PASS [mem: 17142175, cpu: 6699341695] process_30_shuffled_orders_test
+with the half list:
+    │ PASS [mem: 17072969, cpu: 6676825710] process_30_shuffled_orders_test
+I can push that in an "experimental" branch if you want to take a look
+
+Quantumplation — 01/31/2024 4:05 PM
+so we save about 0.4% of the max budget 😅
+on memory anyway
+(17142175 - 17072969) / 14000000
+
+francolq — 01/31/2024 4:06 PM
+yes, but I think something good is that it is stable, it is not sensitive to the shuffling of the orders
+for n orders it always saves (n / 2)^2  tail operations
+
+Quantumplation — 01/31/2024 4:07 PM
+how does it impact things if the orders are in sorted order?
+
+francolq — 01/31/2024 4:07 PM
+let me see
+│ PASS [mem: 16752165, cpu: 6548794822] process_30_shuffled_orders_test
+this is in sorted order for the original code (with remaining_inputs)
+
+francolq — 01/31/2024 4:14 PM
+the half list optimization is the same as before:
+    │ PASS [mem: 17072969, cpu: 6676825710] process_30_shuffled_orders_test
+if the expectation is that the input_orders is sorted, the remaining_inputs approach is more efficient
+
+Quantumplation — 01/31/2024 4:17 PM
+so:
+in the average case, your solution is about 0.4% more efficient (not enough to get us an extra order)
+in the optimal case, our solution is about 2.2% more efficient (likely enough for an extra order or two)
+
+So while most of the time the orders will be shuffled, when we can sort them (i.e. all of the pre-launch orders from a given token, or if the DAO votes to relax the FCFS requirement under load), we can fit a few more orders and burn through that load faster
+
+francolq — 01/31/2024 4:20 PM
+out of curiosity, this is the worst case, a reversed input_orders list:
+    │ PASS [mem: 17251431, cpu: 6735306647] process_30_shuffled_orders_test
+
+Quantumplation — 01/31/2024 4:22 PM
+for which, our impl or yours?
+
+francolq — 01/31/2024 4:22 PM
+for yours, with remaining_inputs
+with half_list it is always the same
+it is insensitive to the sorting order
+I think it is ok, you have strong arguments for your version!
+as a side comment, Lucas shared me this binary search tree, you may find it interesting:
+https://github.com/aiken-lang/trees/blob/main/lib/aiken/trees/bst.ak
+
+Quantumplation — 01/31/2024 4:26 PM
+nods my guess is that the sizes of txs are going to be such that the asymptotics never make such a tree worth it, but it's good to have an implementation heh
+
+francolq — 01/31/2024 4:27 PM
+I agree 🙂
+
+francolq — 02/01/2024 5:50 PM
+@Quantumplation we realized with Nacho that we were using different versions of Aiken and getting very different mem/cpu budgets.
+the test for the 30 orders is actually given more reasonable values with a more recent version of Aiken (v1.0.21-alpha+4b04517):
+    │ PASS [mem: 12571807, cpu: 4883611979] process_30_shuffled_orders_test
+
+Quantumplation — 02/01/2024 5:51 PM
+ooo! nice!
+
+francolq — 02/01/2024 5:51 PM
+not 17 millions as I reported previoulsy with  v1.0.14-alpha
+for the record, last version v1.0.24-alpha is worse than 1.0.21:
+    │ PASS [mem: 13673721, cpu: 5235633714] process_30_shuffled_orders_test
+
+
+--------------------------------------------
+DISCUSSION ABOUT SYMMETRY OF DEPOSIT OPERATION (FINDING SSW-311)
+
+Quantumplation — 01/31/2024 1:00 PM
+I think we have a finding of our own
+https://preview.cexplorer.io/tx/4cd7da636f59b536ea21ef538ac7455d27f4f0a2cba48f4287e4737c8d2358fa
+
+In this transaction, we try to deposit 171 lovelace and 94 RBERRY; and it returns 171 lovelace to the user, and keeps the 94 rberry, without minting any LP tokens
+
+Quantumplation — 01/31/2024 2:41 PM
+ultimately it's really minor, because someone effectively just donated 171 lovelace worth of value to the pool
+but still something we probably want to prevent
+
+francolq — 02/01/2024 5:58 PM
+so @Quantumplation I want to talk about deposit.ak and the finding you had with transaction 4cd7da636f59b536ea21ef538ac7455d27f4f0a2cba48f4287e4737c8d2358fa
+
+Quantumplation — 02/01/2024 6:02 PM
+yea! basically it's possible that the amounts are so low that when it computes the quantity of LP tokens, it comes up with 0; and so it distributes 0 LP tokens, and pays the 171 lovelace into the pool, and 0 B into the pool
+
+francolq — 02/01/2024 6:02 PM
+the result you had was to deposit (0, 94) liquidity (ADA, RBERRY),  and minted 0 LP tokens
+
+Quantumplation — 02/01/2024 6:03 PM
+so i think we just need an expect lp > 0 
+
+francolq — 02/01/2024 6:03 PM
+I was taking a look at the math
+and comparing with some formulas we have from older projects
+in your formulas you are using integer division
+if you change these divisions to round up instead of down
+you will have the following result: deposit (1, 94) liquidity (ADA, RBERRY),  and mint 34 LP tokens
+
+Quantumplation — 02/01/2024 6:05 PM
+does that risk draining the pool though? we'd be giving slightly more LP tokens than the value that you deposited, so if you then withdrew immediately, you'd get back slightly more than you put in
+-- similar to the balancer formula
+  doDeposit ret (DepositSingle coin amt) a b liq cons es =
+    let
+      de = denominator swapFees * 2
+      nu = numerator swapFees
+      diff = de - nu
+      inPool CoinA = a
+      inPool CoinB = b
+      !liq2 = liq * liq
+      !extraLiquidityTokens =
+        unsafeSqrt
+          (fromInteger liq2 + (liq2 * amt * diff) % (inPool coin * de)) -
+        liq
+      !liq_incr = liq + extraLiquidityTokens
+      !liqABL = ofLiquidity extraLiquidityTokens
+    in
+      case coin of
+        CoinA ->
+          go (a + amt) b liq_incr ((ret, liqABL) : cons) es
+        CoinB ->
+          go a (b + amt) liq_incr ((ret, liqABL) : cons) es
+  doDeposit ret (DepositMixed userGives) a b liq cons es =
+    let !bInUnitsOfA = (userGives $$ CoinB * a) `divide` b
+        !giveCoinA = userGives $$ CoinA
+        !change =
+          if bInUnitsOfA > giveCoinA then
+            ((b * (bInUnitsOfA - giveCoinA)) `divide` a) `ofCoin` CoinB
+          else
+            (giveCoinA - bInUnitsOfA) `ofCoin` CoinA
+        !userDeposits = noLiquidity (userGives - change)
+        !extraLiquidityTokens = (userDeposits $$ CoinA * liq) `divide` a
+        !output = ofLiquidity extraLiquidityTokens + noLiquidity change
+    in
+      go (a + userDeposits $$ CoinA) (b + userDeposits $$ CoinB) (liq + extraLiquidityTokens) ((ret, output) : cons) es
+
+  doWithdrawal ret givesLiquidity a b liq cons es =
+    let
+      inPool CoinA = a
+      inPool CoinB = b
+      !withdrawn = noLiquidity $ memo \coin -> (givesLiquidity * inPool coin) `divide` liq
+    in go (a - withdrawn $$ CoinA) (b - withdrawn $$ CoinB) (liq - givesLiquidity) ((ret, withdrawn) : cons) es
+these are our v1 formulas that were audited by runtime verification
+ignoring the DepositSingle case
+EscrowSwap coin gives minTakes ->
+      let
+        !de = denominator swapFees
+        !nu = numerator swapFees
+        !diff = de - nu
+      in
+        case coin of
+          CoinA
+            | let !takes = (b * gives * diff) `divide` (a * de + gives * diff)
+            , b > takes
+            , Just takes >= minTakes ->
+            go (a + gives) (b - takes) liq ((ret, takes `ofCoin` CoinB) : cons) es
+          CoinB
+            | let !takes = (a * gives * diff) `divide` (b * de + gives * diff)
+            , a > takes
+            , Just takes >= minTakes ->
+            go (a - takes) (b + gives) liq ((ret, takes `ofCoin` CoinA) : cons) es
+          _ -> error ()
+
+
+And here's our swap, fwiw
+
+francolq — 02/01/2024 6:06 PM
+well, I am not sure but I don't think so, because it requires so many orders that the associated costs are not worth it
+
+Quantumplation — 02/01/2024 6:07 PM
+Runtime Verification do a lot of formal modelling and stuff, and helped us identify really subtle corner cases that avoid risks to the pool draining over time etc; so i'm very hesitant to deviate from that 😅
+
+francolq — 02/01/2024 6:07 PM
+no problem
+
+Quantumplation — 02/01/2024 6:08 PM
+so for example, failing if the liquidity tokens are 0, since the amounts are so small, seems reasonable too
+
+francolq — 02/01/2024 6:08 PM
+yes, sure
+
+Quantumplation — 02/01/2024 6:09 PM
+that being said, if you do come across any math that is wrong / can be improved, i'm open to it
+just want to be really solid in understanding exactly what the risks / effects of the change are
+
+francolq — 02/01/2024 6:09 PM
+yes, I will think more deeply about it
+
+francolq — 02/02/2024 5:46 PM
+hi @Quantumplation I was doing more tests with deposit and I have a question
+do you expect all these operations to be symmetric in terms of the assets (A, B)?
+
+Quantumplation — 02/02/2024 5:47 PM
+what do you mean?
+
+francolq — 02/02/2024 5:47 PM
+I mean if you flip all the amounts and do the operation, the result show be the same
+for instance in the case you found, you deposit 171 ADA and 94 RBERRY
+and get back alla 171 ADA as change and 0 LPs
+say I flip everything, all amounts
+deposit 94 ADA and 171 RBERRY
+
+Quantumplation — 02/02/2024 5:48 PM
+no, i don't think i would expect that to be the same. because that's not going to represent the same ratio of assets
+
+francolq — 02/02/2024 5:48 PM
+(and of course flip amounts in the pool)
+
+Quantumplation — 02/02/2024 5:49 PM
+oh, then, perhaps
+
+francolq — 02/02/2024 5:49 PM
+the case is, as it is now, result is different
+for this case in particular, 2 LPs are minted instead of 0
+
+  let issued_lp_tokens =
+    deposited_a * pool_state.quantity_lp.3rd / pool_state.quantity_a.3rd
+and actual deposited amounts are (94, 1), not (94, 0) as expected by symmetry
+
+Quantumplation — 02/02/2024 5:51 PM
+I'm not sure.
+
+Here's the goal of deposit:
+accept, into the pool, quantities (a, b), such that, a and b are in the same ratio as reserve_a and reserve_b
+the quantity of issued LP tokens, as a percentage of the new circulating supply, represents the same percentage that a or b have to the new reserve_a and reserve_b
+(a, b) are at most the values specified in the datum
+any surplus of either a or b is returned to the user
+any rounding is in favor of more assets into the pool, to prevent subtle rounding attacks that drain the pool over time
+ 
+francolq — 02/02/2024 5:53 PM
+yes, I agree with the goals
+
+Quantumplation — 02/02/2024 5:53 PM
+so, the last bullet point might change symmetry by up to 1 unit of an asset
+
+francolq — 02/02/2024 5:54 PM
+but the rounding issues are kind of "underspecified" and several possible behaviours are acceptable
+
+Quantumplation — 02/02/2024 5:54 PM
+if you want to make a case for any particular one, i'm happy to hear it out / implement it
+
+francolq — 02/02/2024 5:54 PM
+I will, I think I almost have it
+what I am pretty sure right now is that the asymmetry is true for deposit
+
+francolq — 02/02/2024 5:56 PM
+so my question somehow is that if you are willing to accept that for the exact same operation the results may be different depending on the asset order: (A, B) or (B, A)
+
+Quantumplation — 02/02/2024 5:58 PM
+It's hard for me to say, tbh. If it achieves the goals above, but is different by a few millionths of an ADA in a way that isn't going to let you amplify that difference and gain an advantage, then I'm fine with it being asymmetric. In particular, the order of assets is enforced by the contract, and 100 ADA / 50 RBERRY is a very different pool than 50 ADA / 100 RBERRY
+i.e. the symmetry itself is an unimportant property, unless it's needed to ensure any of the above
+
+francolq — 02/02/2024 6:01 PM
+ok, I will summarize the finding, I think it is relevant to have it documented, it is not necessarily something that must be fixed
+also, that (at least in this corner case) it is not the same computing the LP tokens from A or from B:
+  let issued_lp_tokens = deposited_a * pool_state.quantity_lp.3rd / pool_state.quantity_a.3rd
+
+is different than 
+  let issued_lp_tokens = deposited_b * pool_state.quantity_lp.3rd / pool_state.quantity_b.3rd
+in one case you get 0 (deposited_a is 0), in the other you get 2
+
+Quantumplation — 02/02/2024 6:09 PM
+correct, subject to rounding
+
+francolq — 02/05/2024 7:13 PM
+hi @Quantumplation ! I just pushed finding SSW-311, and last friday SSW-310, both about the deposit operation 
+SSW-311 also includes a branch I pushed: https://github.com/SundaeSwap-finance/sundae-contracts/tree/francolq/ssw-311
+with a couple of tests
+I didn't do a PR because I am not sure if you want it merged
