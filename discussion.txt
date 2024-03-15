@@ -1,93 +1,4 @@
 --------------------------------------------
-DISCUSSION LEADING TO FINDING SSW-301
-
-francolq — 01/04/2024 7:35 PM
-I am working on understanding all the parameters for functions process_orders and process_order.
-
-First thing I see is some redundancy in last three parameters of process_order: output, outputs, and rest_outputs. It looks like it is always the case that [output] + rest_outputs = outputs. If I am right, only the outputs parameter is necessary.
-
-Quantumplation — 01/04/2024 7:36 PM
-This is likely done for performance, to avoid destructuring the list an extra time
-this is highly performance sensitive code, so even a few saved mem units can make a huge difference
-I think at one point we used something from output in process_orders (n.b. plural), so we needed to destructure there, and then we passed both lists down to the sub handler, but it looks like that's no longer the case 
-so we could probably move the list destructure into process_order (n.b. singular) instead
-
-
-Quantumplation — 01/10/2024 7:50 PM
-@ignacio.dopazo for SSW-301, would it be better to pass output, rest_outputs to the process_order function (given that we recursively call process_order for strategies)? or should we pass outputs, and only destructure on each of the other 4 match cases?
-
-Quantumplation — 01/10/2024 10:06 PM
-I'll get a fix for SSW-301 up too, but I'm not sure which of these would result in better perf; is it better to pass fewer parameters, in favor of duplicating the destructure in 4 places (each of which would only run once), or destructure in one place and pass in 2 parameters
-
-francolq — 01/11/2024 2:34 PM
-Hi Pi! Sorry for the delay in the answer, I am in favour of passing fewer parameters, for me code simplicity is very important, if the price in terms of script size, mem and CPU is affordable
-But this is your decision
-
-Quantumplation — 01/11/2024 3:06 PM
-I didn't know if you had a sense of how big an impact it would make on me. Maybe @Microproofs ?
-
-Quantumplation — 01/11/2024 3:06 PM
-I'm not sure it's simpler code, because it would mean we do 4 different destructures 
-
-francolq — 01/11/2024 3:13 PM
-process_orders will be simpler and for me it is somehow the backbone of the code so it is worth to have the destructuring in the "lower" functions, if necessary
-also conceptually, I understand that sometimes it is necessary to take and output and sometimes no, I wonder if it is possible in the future that some new type of order can take more than one output
-
-Quantumplation — 01/11/2024 3:29 PM
-we thought about that, but it makes things really complicated lol; so for this version of the contracts it's probably not the case, but a future version might do so
-we have to draw the line in the sand somewhere, or we'll be building sundae v3 for the next 5 years lol
-
-Microproofs — 01/11/2024 3:45 PM
-destructure once is typically better. But obviously depends on case 
-
-Quantumplation — 01/11/2024 3:46 PM
-well, the choice here is between:
-destructure once, and pass 2 parameters
-vs
-destructure once (just, in 4 different places depending on which branch you go down), and pass 1 parameter
-
-Microproofs — 01/11/2024 3:49 PM
-The thing with 2 parameters is depending on the occurrences  of that function like only once it might end up inlined anyway
-
-Quantumplation — 01/11/2024 3:52 PM
-it's recursive; I'll benchmark it later if I get a chance though
-
-Quantumplation — 01/11/2024 7:20 PM
-@ignacio.dopazo @Microproofs of you're curious
-
-new:
-  30 => { cpu: 5096140742, mem: 12876172 },
-  31 => { cpu: 5275802156, mem: 13322221 },
-  32 => { cpu: 5456646896, mem: 13770876 }
-
-old:
-  30 => { cpu: 5041941080, mem: 12802274 },
-  31 => { cpu: 5219854930, mem: 13245935 },
-  32 => { cpu: 5398952106, mem: 13692202 }
-About a 1% increase from the changes for SSW-301
-Specifically we had a function that was destructing then passing in (orders, next_order, rest_orders).
-
-Dropping to one parameter and destructing in 4/5 branches of a match instead was the change we made
-
---------------------------------------------
-DISCUSSION LEADING TO FINDING SSW-305
-
-francolq — 01/04/2024 7:45 PM
-I have a second question just to check I am on the right path: in process_orders the total_fee is calculated as part of the recursion, is it right to say that at the end its value is "amortized_base_fee * order_count + simple_fee * simple_count + strategy_fee * strategy_count" 
-?
-
-Quantumplation — 01/04/2024 7:57 PM
-See pool.ak lines 174 through 189, they explain this pretty thoroughly, though can probably be improved.
-
-The goal is to enforce that:
-every order is processed exactly once
-we are agnostic of the order script address (i.e. we make an assumption about the script inputs that can be included in a scoop: 1 pool, and N orders; process_orders enforces at most once, and line 177 enforces at least once; and then destructuring the datum enforces that it's an order instead of, say, another pool)
-base_fee is paid approximately once (see the note on rounding), spread across each input order evenly
-the correct fee for each order is paid depending on the order type is paid (simple_fee for simple orders, and strategy_fee for strategy orders)
-
-At one point I think we were trying to avoid having to scan over the inputs to count the orders (hence why we pass in the amortized_base_fee), but now that you raise it, it might be possible to remove that, count the orders first, and then pass in amortized_base_fee (with rounding) from that, rather than having the scooper count it. 
-
---------------------------------------------
 DISCUSSION ABOUT THE NEED FOR SingletonValue IN ORDER DATUMS
 
 Quantumplation — 01/15/2024 5:58 PM
@@ -147,46 +58,6 @@ not sure, we can take a look, can you link me to minswap code?
 
 Quantumplation — 01/17/2024 8:13 PM
 https://github.com/minswap/minswap-stableswap/blob/main/validators/pool_validator.ak#L309-L310
-
---------------------------------------------
-DISCUSSION LEADING TO FINDINGS SSW-001 AND SSW-201
-
-francolq — 01/18/2024 6:19 PM
-hi @Quantumplation we are taking a look at the create pool validation
-I think we have two relevant findings 
-quick comment here until I finish writing them in the report
-
-Quantumplation — 01/18/2024 6:20 PM
-Awesome 🙂 I know there's at least one in there that I haven't fixed yet, so I'm not surprised
-
-francolq — 01/18/2024 6:21 PM
-this check:
-list.length(value.flatten(pool_output.value)) <= 3
-doesn't work if you want to create a pool with a pair that doesn't include ADA
-there is no check over pool_output.address
-so the pool datum and value could be paid anywhere
-
-Quantumplation — 01/18/2024 6:24 PM
-ok, yea, this is the one I was thinking of 😅 noticed it the other day while I was fixing the redundant staking address thing, and didn't get around to fixing it
-
-francolq — 01/18/2024 6:24 PM
-I think both classify as minor severity
-just pushed the first one: "Minor finding SSW-201: Create pool doesn't validate if ADA is not in the pair"
-
-Quantumplation — 01/18/2024 6:32 PM
-the latter is probably Critical or at least Major; with it you could get a free pool token which could be used to steal order UTXOs
-
-francolq — 01/18/2024 6:32 PM
-hmm yes
-
-francolq — 01/18/2024 6:43 PM
-yes, just double checked, I would definitely say Critical
-
-francolq — 01/18/2024 6:59 PM
-if you think it is worth, we could work on simulating an exploit of this vulnerability using the lucid emulator
-
-Quantumplation — 01/18/2024 7:01 PM
-no, I think it's pretty clear that there is a vulnerability; we'll add it to the test cases that @card is working on
 
 --------------------------------------------
 DISCUSSION ABOUT ASSUMPTIONS ON THE ORDERING OF REFERENCE INPUTS
@@ -460,116 +331,6 @@ out of curiosity, this is the worst case, a reversed input_orders list:
 
 Quantumplation — 01/31/2024 4:22 PM
 for which, our impl or yours?
-francolq — 01/31/2024 4:22 PM
-for yours, with remaining_inputs
-with half_list it is always the same
-it is insensitive to the sorting order
-I think it is ok, you have strong arguments for your version!
-as a side comment, Lucas shared me this binary search tree, you may find it interesting:
-https://github.com/aiken-lang/trees/blob/main/lib/aiken/trees/bst.ak
-
-Quantumplation — 01/31/2024 4:26 PM
-nods my guess is that the sizes of txs are going to be such that the asymptotics never make such a tree worth it, but it's good to have an implementation heh
-
-francolq — 01/31/2024 4:27 PM
-I agree 🙂
-
---------------------------------------------
-DISCUSSION ABOUT COUNTING ORDERS LOGIC AND DOUBLE SATISFACTION (SEE ALSO: https://github.com/SundaeSwap-finance/sundae-contracts/issues/47)
-
-
-Quantumplation — 01/29/2024 8:52 PM
-@francolq responded to your github issue, and I disagree
-I think the name count_orders is actually correct, and important for clarity
-i.e. the consuming code cares about the count of orders; it doesn't care about the count of script inputs. So if you're reviewing a block of code for correctness, it better expresses the intent of the code
-it's just an implementation detail that an efficient way to count the number of orders is to count the script inputs minus 1
-
-francolq — 01/30/2024 1:11 AM
-hello Pi! For me it is not an implementation detail that the function counts script inputs - 1, because the result will be different if there are extra script inputs that are not orders or the pool itself. When reading the code, I was wondering if the scooper was allowed to do this or not, because extra script inputs may enable attacks such as double satisfaction (maybe with another pool input). With the name "count_orders" I thought at first that these extra script inputs were not being counted. But then reading the implementation I found that they are actually counted, meaning that the check ´expect simple_count + strategy_count == real_order_count´ not only implies that there is no under-reporting but also that there are no extra "unrelated" script inputs. 
-
-Quantumplation — 01/30/2024 1:27 AM
-well, that's because you're reading it as an auditor.
-
-From the meaning of the code, we use count_orders to calculate the amortized script fee. The number of script inputs is meaningless to that value, we're not splitting the base fee among every script input, we're splitting it among every order.
-
-The "correct" way to implement count_orders would be to traverse over each of the inputs, and check if it has the order datum attached; it just so happens that that will always (in our scripts) be equivalent to the number of script inputs minus 1; and in fact, the script will fail for other reasons if they are different.
-
-So it's and important property, for sure, especially to an auditor checking correctness of the code, which is why there's like, a full dissertation in the comments of the function 😅
-
-But to someone trying to understand why the contracts do what they do, IMO count_orders is a lot clearer and true to the intention of the function
-
-francolq — 01/30/2024 8:09 PM
-hello @Quantumplation !! all ok with issue #47, time to move on to other stuff
-
-
---------------------------------------------
-DISCUSSION ABOUT remaining_inputs OPTIMIZATION
-
-francolq — 01/30/2024 9:20 PM
-I am thinking about an alternative to the remaining_inputs optimization. The goal is to have a very fast way to index the all_inputs list. The ideal solution would be to build a binary search tree (lot of work, not sure if it will work in practice). A simpler solution that is easy to try is to have a list with the 2nd half of the inputs list, say "snd_half_inputs" (instead of remaining_inputs). When looking for the input, then index on "all_inputs" if it is in the 1st half, or index on "snd_half_inputs" if it is in the 2nd half.
-
-Quantumplation — 01/30/2024 9:30 PM
-at this point i'm less concerned with micro-optimizations; If there's an easy way to get a big win, for sure, but i'm not sure if this would save over the existing contracts, and 37 orders is already a big improvement
-
-francolq — 01/30/2024 10:11 PM
-Yes, sure, sometimes I can't help myself with optimizations 🙂 This is one of the last ones. In this case I think it would also contribute to code simplicity,  so I think it is worth a shot.
-
-Quantumplation — 01/30/2024 10:34 PM
-how would you find "half the list"? just an initial scan first?
-
-francolq — 01/30/2024 11:18 PM
-I think a call to unsafe_fast_index_skip_with_tail(inputs, total_inputs / 2)
-will return the second half
-
-Quantumplation — 01/31/2024 12:36 AM
-We don't have a count of inputs, do we?
-
-francolq — 01/31/2024 1:34 AM
-hmm no, but I guess it can be done together with count_orders
-
-francolq — 01/31/2024 4:03 PM
-@Quantumplation I could do a quick test of the "half list" idea
-with the original code:
-    │ PASS [mem: 17142175, cpu: 6699341695] process_30_shuffled_orders_test
-with the half list:
-    │ PASS [mem: 17072969, cpu: 6676825710] process_30_shuffled_orders_test
-I can push that in an "experimental" branch if you want to take a look
-
-Quantumplation — 01/31/2024 4:05 PM
-so we save about 0.4% of the max budget 😅
-on memory anyway
-(17142175 - 17072969) / 14000000
-
-francolq — 01/31/2024 4:06 PM
-yes, but I think something good is that it is stable, it is not sensitive to the shuffling of the orders
-for n orders it always saves (n / 2)^2  tail operations
-
-Quantumplation — 01/31/2024 4:07 PM
-how does it impact things if the orders are in sorted order?
-
-francolq — 01/31/2024 4:07 PM
-let me see
-│ PASS [mem: 16752165, cpu: 6548794822] process_30_shuffled_orders_test
-this is in sorted order for the original code (with remaining_inputs)
-
-francolq — 01/31/2024 4:14 PM
-the half list optimization is the same as before:
-    │ PASS [mem: 17072969, cpu: 6676825710] process_30_shuffled_orders_test
-if the expectation is that the input_orders is sorted, the remaining_inputs approach is more efficient
-
-Quantumplation — 01/31/2024 4:17 PM
-so:
-in the average case, your solution is about 0.4% more efficient (not enough to get us an extra order)
-in the optimal case, our solution is about 2.2% more efficient (likely enough for an extra order or two)
-
-So while most of the time the orders will be shuffled, when we can sort them (i.e. all of the pre-launch orders from a given token, or if the DAO votes to relax the FCFS requirement under load), we can fit a few more orders and burn through that load faster
-
-francolq — 01/31/2024 4:20 PM
-out of curiosity, this is the worst case, a reversed input_orders list:
-    │ PASS [mem: 17251431, cpu: 6735306647] process_30_shuffled_orders_test
-
-Quantumplation — 01/31/2024 4:22 PM
-for which, our impl or yours?
 
 francolq — 01/31/2024 4:22 PM
 for yours, with remaining_inputs
@@ -598,6 +359,32 @@ not 17 millions as I reported previoulsy with  v1.0.14-alpha
 for the record, last version v1.0.24-alpha is worse than 1.0.21:
     │ PASS [mem: 13673721, cpu: 5235633714] process_30_shuffled_orders_test
 
+--------------------------------------------
+DISCUSSION ABOUT COUNTING ORDERS LOGIC AND DOUBLE SATISFACTION (SEE ALSO: https://github.com/SundaeSwap-finance/sundae-contracts/issues/47)
+
+
+Quantumplation — 01/29/2024 8:52 PM
+@francolq responded to your github issue, and I disagree
+I think the name count_orders is actually correct, and important for clarity
+i.e. the consuming code cares about the count of orders; it doesn't care about the count of script inputs. So if you're reviewing a block of code for correctness, it better expresses the intent of the code
+it's just an implementation detail that an efficient way to count the number of orders is to count the script inputs minus 1
+
+francolq — 01/30/2024 1:11 AM
+hello Pi! For me it is not an implementation detail that the function counts script inputs - 1, because the result will be different if there are extra script inputs that are not orders or the pool itself. When reading the code, I was wondering if the scooper was allowed to do this or not, because extra script inputs may enable attacks such as double satisfaction (maybe with another pool input). With the name "count_orders" I thought at first that these extra script inputs were not being counted. But then reading the implementation I found that they are actually counted, meaning that the check ´expect simple_count + strategy_count == real_order_count´ not only implies that there is no under-reporting but also that there are no extra "unrelated" script inputs. 
+
+Quantumplation — 01/30/2024 1:27 AM
+well, that's because you're reading it as an auditor.
+
+From the meaning of the code, we use count_orders to calculate the amortized script fee. The number of script inputs is meaningless to that value, we're not splitting the base fee among every script input, we're splitting it among every order.
+
+The "correct" way to implement count_orders would be to traverse over each of the inputs, and check if it has the order datum attached; it just so happens that that will always (in our scripts) be equivalent to the number of script inputs minus 1; and in fact, the script will fail for other reasons if they are different.
+
+So it's and important property, for sure, especially to an auditor checking correctness of the code, which is why there's like, a full dissertation in the comments of the function 😅
+
+But to someone trying to understand why the contracts do what they do, IMO count_orders is a lot clearer and true to the intention of the function
+
+francolq — 01/30/2024 8:09 PM
+hello @Quantumplation !! all ok with issue #47, time to move on to other stuff
 
 --------------------------------------------
 DISCUSSION ABOUT SYMMETRY OF DEPOSIT OPERATION (FINDING SSW-311)
