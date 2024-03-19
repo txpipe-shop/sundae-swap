@@ -383,7 +383,7 @@ The final state of the files for the purposes of this report is considered to be
     id: [SSW-101],
     title: [Settings datum size is limited forever by the initially locked ADA],
     severity: "Major",
-    status: "Identified",
+    status: "Resolved",
     category: "Bug",
     commit: "4a5f4f494665f7a110e89d5aa5425fd5cae2311a",
     description: [
@@ -400,15 +400,15 @@ The final state of the files for the purposes of this report is considered to be
       of changing the locked value at least for adding more ADA.
     ],
     resolution: [
-      Resolved in commit `XXXX`
-      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+      Resolved in commit `c65928e0cb00a27a5ac9672d9f9ea0f81a8cc38b`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/54")[PR \#54]).
     ],
   ),
   (
     id: [SSW-201],
     title: [Create pool doesn't validate if ADA is not in the pair],
     severity: "Minor",
-    status: "Identified",
+    status: "Resolved",
     category: "Bug",
     commit: "4a5f4f494665f7a110e89d5aa5425fd5cae2311a",
     description: [
@@ -429,8 +429,8 @@ The final state of the files for the purposes of this report is considered to be
       ensures that there is only one possible outcome for the value.
     ],
     resolution: [
-      Resolved in commit `XXXX`
-      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+      Resolved in commit `ad7183c85af150451dc32a7c3ac091d125f65574`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/66")[PR \#66]).
     ],
   ),
   (
@@ -458,7 +458,7 @@ The final state of the files for the purposes of this report is considered to be
     title: [Create pool doesn't validate `fees_per_10_thousand` in pool output
     datum],
     severity: "Minor",
-    status: "Identified",
+    status: "Resolved",
     category: "Robustness",
     commit: "4a5f4f494665f7a110e89d5aa5425fd5cae2311a",
     description: [
@@ -474,8 +474,8 @@ The final state of the files for the purposes of this report is considered to be
       range.
     ],
     resolution: [
-      Resolved in commit `XXXX`
-      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+      Resolved in commit `c290154883e21373ebcc9dcf575d1311388b9429`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/56")[PR \#56]).
     ],
   ),
   (
@@ -483,7 +483,7 @@ The final state of the files for the purposes of this report is considered to be
     title: [No way to modify the list of authorized staking keys in the
     protocol settings],
     severity: "Minor",
-    status: "Identified",
+    status: "Resolved",
     category: "Bug",
     commit: "4a5f4f494665f7a110e89d5aa5425fd5cae2311a",
     description: [
@@ -497,8 +497,8 @@ The final state of the files for the purposes of this report is considered to be
       `authorized_staking_keys` field could be updated.
     ],
     resolution: [
-      Resolved in commit `XXXX`
-      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+      Resolved in commit `6104be8df1ec9dc81a9e38e84be7d15ea9d6510b`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/57")[PR \#57]).
     ],
   ),
   (
@@ -800,7 +800,7 @@ The final state of the files for the purposes of this report is considered to be
     id: [SSW-311],
     title: [Asymmetry of deposit operation],
     severity: "Info",
-    status: "Identified",
+    status: "Acknowledged",
     category: "Theoretical",
     commit: "2487900eea2ea1d87f6e8a04707dcf039becd265",
     description: [
@@ -833,7 +833,7 @@ The final state of the files for the purposes of this report is considered to be
     id: [SSW-312],
     title: [Optimizable manipulation of output value in `has_expected_pool_value`],
     severity: "Info",
-    status: "Identified",
+    status: "Resolved",
     category: "Optimization",
     commit: "2487900eea2ea1d87f6e8a04707dcf039becd265",
     description: [
@@ -843,8 +843,8 @@ The final state of the files for the purposes of this report is considered to be
       Instead of using `value.quantity_of`, `value.lovelace_of`, and `has_exact_token_count`, we can traverse the output value just once by converting it into a list and then using fold or a recursive function to perform all the needed checks throughout.
     ],
     resolution: [
-      Resolved in commit `XXXX`
-      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+      Resolved in commit `bfe8e8fd9f1177b6b202c6e871a8ed6e65d217e9`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/52")[PR \#52]).
     ],
   ),
 ))
