@@ -312,7 +312,7 @@ The final state of the files for the purposes of this report is considered to be
 #v(1em)
 #findings(items: (
 /*  (
-    id: [SSW-001],         // first digit corresponds to severity (see below)
+    id: [SSW-XXX],         // first digit corresponds to severity (see below)
     title: [XXXXXXX],
     severity: "Critical",  // one of: Critical (0), Major (1), Minor (2), Info (3)
     status: "Resolved",    // one of: Resolved, Acknowledged, Identified
@@ -325,6 +325,7 @@ The final state of the files for the purposes of this report is considered to be
       XXXXXXX
     ],
     resolution: [
+      // we put here the commit with message "Merge pull request #NN from ..."
       Resolved in commit `XXXX`
       (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
     ],
