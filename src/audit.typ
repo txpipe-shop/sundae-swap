@@ -406,6 +406,28 @@ The final state of the files for the purposes of this report is considered to be
     ],
   ),
   (
+    id: [SSW-102],
+    title: [Order `Scoop` redeemer enforces one and only one withdrawal],
+    severity: "Major",
+    status: "Identified",
+    category: "Bug",
+    commit: "4b9fd66acfc2752623d766c95a776263106bdbcd",
+    description: [
+      #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/4b9fd66acfc2752623d766c95a776263106bdbcd/validators/order.ak#L48")[This] `expect` clause of the Order validator enforces that in a Scoop there's one and only one withdrawal.
+
+      An issue that may arise because of this is a failure in a scroop transaction when there's a Strategy Order where `StrategyAuthorization` is `Script`. #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/4b9fd66acfc2752623d766c95a776263106bdbcd/lib/calculation/strategy.ak#L88")[This script must be in the withdrawals], and is not equal than the withdrawal script that the Order validator is expecting.
+
+      Another thing to take into account is that the withdrawals are in lexicographical order, so we should be careful when assuming that a certain script is in some specific index of the withdrawals as a list.
+    ],
+    recommendation: [
+      Allow the possiblity to have more than one withdrawal script in a transaction that involves the Scoop redeemer of the Order validator.
+    ],
+    resolution: [
+      Resolved in commit `XXXX`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+    ],
+  ),
+  (
     id: [SSW-201],
     title: [Create pool doesn't validate if ADA is not in the pair],
     severity: "Minor",
