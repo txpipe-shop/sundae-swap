@@ -298,7 +298,7 @@ Expected Failure Scenarios:
 #pagebreak()
 
 
-=== Files Audited
+=== Audited Files
 #v(1em)
 
 Below is a list of all files audited in this report, any files *not* listed here were *not* audited.
