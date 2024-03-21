@@ -545,6 +545,31 @@ The final state of the files for the purposes of this report is considered to be
     ],
   ),
   (
+    id: [SSW-205],
+    title: [Pool fees update lacks validation of fees percentages],
+    severity: "Minor",
+    status: "Identified",
+    category: "Robustness",
+    commit: "4b9fd66acfc2752623d766c95a776263106bdbcd",
+    description: [
+      In the `CreatePool` redeemer there's a #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/e3b7ca3eebd64963c35bdfd2b5013b3a4c93bcef/validators/pool.ak#L499-L506")[check]
+      for `bid_fees_per_10_thousand` and `ask_fees_per_10_thousand`
+      for keeping them within the range [0, 10.000].
+
+      In the `UpdatePoolFees` redeemer, those percentages
+      #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/e3b7ca3eebd64963c35bdfd2b5013b3a4c93bcef/validators/pool.ak#L336-L337")[could be updated while this check is not performed].
+      This implies that the fee manager could update them to whatever he wants,
+      defeating the purpose of the check performed in `CreatePool`.
+    ],
+    recommendation: [
+      Repeat said check in `UpdatePoolFees` redeemer.
+    ],
+    resolution: [
+      Resolved in commit `XXXX`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+    ],
+  ),
+  (
     id: [SSW-301],
     title: [Redundant parameters in process_order: outputs = output + rest_outputs],
     severity: "Info",
