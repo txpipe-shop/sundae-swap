@@ -32,7 +32,27 @@ do not claim to have detected all potential vulnerabilities.
 
 == Process
 #v(1em)
-#lorem(50)
+Our audit process involved a thorough examination of SundaeSwap V3 validators.
+Areas vulnerable to potential security threats were closely scrutinized,
+including those where attackers could exploit the validator’s functions to
+disrupt the platform and its users.
+This included evaluating potential risks such as unauthorized asset addition,
+hidden market creation, and disruptions to interoperability with other Plutus
+scripts.
+This also included the common vulnerabilities such as double satisfaction and
+minting policy vulnerabilities.
+
+The audit took place over a period of several weeks, and it involved the
+evaluation of the platform’s mathematical model to verify that the implemented
+equations matched those of the AMM algorithm.
+
+Findings and feedback from the audit were communicated regularly to the
+SundaeSwap team through Discord.
+Diagrams illustrating the necessary transaction structure for proper
+interaction with SundaeSwap V3 are attached as part of this report.
+The SundaeSwap team addressed these issues in an eﬃcient and timely manner,
+enhancing the overall security of the platform.
+
 #pagebreak()
 
 = Specification
