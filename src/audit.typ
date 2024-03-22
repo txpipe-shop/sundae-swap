@@ -269,7 +269,7 @@ Expected Failure Scenarios:
 
 This transaction processes a batch of orders against a particular pool, performed by an authorized scooper.
 
-For each order input there is a related destination output that will contain the assets resulting from the processing of such order (plus a remainder in some cases *TODO list those cases*) and any other assets that were in the order and are not related with the pool. The only exception to this rule are Donation orders that have no reminder i.e. the liquidity ratio of the pool is preserved with the exact amounts provided in the donation.
+For each order input there is a related destination output that will contain the assets resulting from the processing of such order (plus a remainder in some cases) and any other assets that were in the order and are not related with the pool. The only exception to this rule are Donation orders that have no reminder i.e. the liquidity ratio of the pool is preserved with the exact amounts provided in the donation.
 
 Both the Pool and Order validators are executed. They are attached to the transaction within reference inputs.
 
@@ -293,7 +293,7 @@ Expected Failure Scenarios:
 - Pool NFT is stolen from the Pool UTxO or burned
 - Pool pair amounts does not match the expected quantities given the specific processed orders
 - Pool output has a token that wasn't in the Pool input
-- TODO failure scenarios regarding fees
+- Fees are not correctly paid
 - For each destination output. One of:
   - Is not paid to the destination address specified in the corresponding Order input
   - The destination output doesn't have the datum specified in the corresponding Order
