@@ -582,6 +582,32 @@ The final state of the files for the purposes of this report is considered to be
     ],
   ),
   (
+    id: [SSW-206],
+    title: [Pool NFT cannot be burned],
+    severity: "Minor",
+    status: "Identified",
+    category: "Bug",
+    commit: "4b9fd66acfc2752623d766c95a776263106bdbcd",
+    description: [
+      The Pool minting policy has two redeemers: `CreatePool` and `MintLP`.
+
+      - `CreatePool` checks that only one pool NFT is minted.
+      - `MintLP` ensures that the pool NFT is not minted nor burned.
+
+      Then, there's no possiblity of burning the pool NFT,
+      which #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/e3b7ca3eebd64963c35bdfd2b5013b3a4c93bcef/validators/pool.ak#L288C51-L288C63")[is required]
+      in the `WithdrawFees` redeeemer of the Pool validator whenever the Pool has no more liquidity.
+    ],
+    recommendation: [
+      Add a new redeemer in the Pool minting policy that allows to burn the pool NFT
+      under the expected conditions i.e. whenever the Pool has no more liquidity left.
+    ],
+    resolution: [
+      Resolved in commit `XXXX`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+    ],
+  ),
+  (
     id: [SSW-301],
     title: [Redundant parameters in process_order: outputs = output + rest_outputs],
     severity: "Info",
