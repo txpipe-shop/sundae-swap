@@ -217,6 +217,10 @@ Expected Failure Scenarios:
 - The treasury part (withdraw amount minus allowance) is not paid to the treasury address
 - The amount to withdraw is greater than the available protocol fees in the Pool UTxO
 
+==== Operation "close pool"
+
+TODO
+
 === Orders
 
 ==== Operation "create order"
