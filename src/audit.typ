@@ -92,49 +92,70 @@ A single settings UTxO is used for the entire protocol.
 #v(1em)
 Below are a list of valid and invalid transactions as diagrams that can be build to interact with Sundae Swap DEX.
 
-=== Operation "create order"
+=== Settings
 
-This transaction transfers funds from the user to the Order script address, whose associated validator will then be executed to unlock them. This transaction does not require a validator execution and stores a datum that contains information about the type of Order the user made.
+==== Operation "create settings"
 
-The assets sent are different depending on the type of Order but they all contain at least the maximum protocol fee ADA, the assets relevant to the specific type of Order plus any other assets (optional).
+This transaction creates a settings UTxO, which is then referenced by several pool operations that need those protocol settings as part of their validation.
 
-More precisely, the assets relevant to the specific type of Order are:
-
-- Swap: the offered asset given in exchange for the pair's other asset.
-- Deposit: both assets from the pair.
-- Withdrawal: LP tokens.
-- Donation: both assets from the pair.
-- Strategy: none.
+The UTxO contains a datum with the protocol settings, and its value has a NFT used to identify it, which is minted in this create transaction.
 
 #figure(
-  image("img/create_order.png", width: 100%),
+  image("img/create_settings.png", width: 100%),
   caption: [
-    Create Order diagram.
-  ],
-)
-
-=== Operation "cancel order"
-
-This transaction spends an Order UTxO with a Cancel redeemer that allows the transfer of those funds wherever the order Owner wants, which must sign the transaction.
-
-The most common use cases are recovering the funds and doing an order update by consuming the order UTxO and producing a new one.
-
-It is worth noting that the order Owner is a multi-sig script, which allows a straightforward signature requirement as just the presence of a specific public key signature as well as a complex Cardano native/simple script-like validation.
-
-#figure(
-  image("img/cancel_order.png", width: 100%),
-  caption: [
-    Cancel Order diagram.
+    Create Settings diagram.
   ],
 )
 
 Code:
-- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/bcde39aa87567eaee81ccd7fbaf045543c233daa/validators/order.ak#L11")[order.ak:spend():Cancel]
+- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/bcde39aa87567eaee81ccd7fbaf045543c233daa/validators/settings.ak#L87")[settings.ak:mint()]
 
 Expected Failure Scenarios:
-- Owner is *not* signing the transaction
 
-=== Operation "create pool"
+- The protocol boot UTxO is not being spent
+- More than one settings tokens is being minted, or any other asset
+
+==== Operation "update settings"
+
+This transaction colapses two updates of different nature: ones allowed to the settings administrator and others to the treasury administrator. Each one of those can update different fields of the settings datum.
+
+The two involved redeemers are:
+- `SettingsAdminUpdate` for the settings admin
+- `TreasuryAdminUpdate` for the treasury admin
+
+#figure(
+  image("img/update_settings.png", width: 100%),
+  caption: [
+    Update Settings diagram.
+  ],
+)
+
+Code:
+- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/bcde39aa87567eaee81ccd7fbaf045543c233daa/validators/settings.ak#L8")[settings.ak:spend():SettingsAdminUpdate]
+- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/bcde39aa87567eaee81ccd7fbaf045543c233daa/validators/settings.ak#L8")[settings.ak:spend():TreasuryAdminUpdate]
+
+Expected Failure Scenarios:
+
+- There's a minting or burning happening in the transaction
+- The settings NFT is stolen from the settings UTxO
+- The settings input and output have different addresses
+- If the redeemer being executed is the `SettingsAdminUpdate`: other than the following fields are updated
+  - settings_admin
+  - metadata_admin
+  - treasury_admin
+  - authorized_scoopers
+  - base_fee, simple_fee, strategy_fee, pool_creation_fee
+  - extensions
+  else if `TreasuryAdminUpdate` is being executed, other than the following fields are updated:
+  - treasury_address
+  - authorized_staking_keys
+  - extensions?
+- The tx is not signed by the given administrator: `SettingsAdminUpdate` signed by settings admin, or `TreasuryAdminUpdate` by the treasury admin
+
+
+=== Pools
+
+==== Operation "create pool"
 
 This transaction creates a Pool UTxO based on the settings UTxO, which provides various protocol configurations, and funds transfered from the pool creator that act as the initial liquidity. Also, a UTxO which will hold the metadata associated with the pool is created, although the actual metadata information is uploaded in a subsequent transaction that will be performed by the metadata admin.
 
@@ -173,7 +194,74 @@ Expected Failure Scenarios:
 - Metadata output does not have a void datum
 - The settings UTxO doesn't have a token with the expected policy ID (parameter of the validator)
 
-=== Operation "scoop"
+==== Operation "withdraw fees"
+
+This transaction allows the treasury administrator to take a specific amount of ADA from the UTxO pool accumulated there in protocol fees. This withdrawn amount is then paid to the treasury address minus a portion (the allowance) that this admin can pay wherever he wants.
+
+#figure(
+  image("img/withdraw_fees.png", width: 100%),
+  caption: [
+    Withdraw Fees diagram.
+  ],
+)
+
+Code:
+- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/bcde39aa87567eaee81ccd7fbaf045543c233daa/validators/pool.ak#L234")[pool.ak:spend():WithdrawFees]
+
+Expected Failure Scenarios:
+
+- Pool input address and Pool output address are distinct
+- In Pool output Datum, any other field than the protocol fees one is updated
+- The amount to withdraw specified within the redeemer does not match the amount of ADA taken from the Pool UTxO, or any of the other assets quantities of the UTxO change
+- The transaction is not signed by the treasury administrator
+- The treasury part (withdraw amount minus allowance) is not paid to the treasury address
+- The amount to withdraw is greater than the available protocol fees in the Pool UTxO
+
+=== Orders
+
+==== Operation "create order"
+
+This transaction transfers funds from the user to the Order script address, whose associated validator will then be executed to unlock them. This transaction does not require a validator execution and stores a datum that contains information about the type of Order the user made.
+
+The assets sent are different depending on the type of Order but they all contain at least the maximum protocol fee ADA, the assets relevant to the specific type of Order plus any other assets (optional).
+
+More precisely, the assets relevant to the specific type of Order are:
+
+- Swap: the offered asset given in exchange for the pair's other asset.
+- Deposit: both assets from the pair.
+- Withdrawal: LP tokens.
+- Donation: both assets from the pair.
+- Strategy: none.
+
+#figure(
+  image("img/create_order.png", width: 100%),
+  caption: [
+    Create Order diagram.
+  ],
+)
+
+==== Operation "cancel order"
+
+This transaction spends an Order UTxO with a Cancel redeemer that allows the transfer of those funds wherever the order Owner wants, which must sign the transaction.
+
+The most common use cases are recovering the funds and doing an order update by consuming the order UTxO and producing a new one.
+
+It is worth noting that the order Owner is a multi-sig script, which allows a straightforward signature requirement as just the presence of a specific public key signature as well as a complex Cardano native/simple script-like validation.
+
+#figure(
+  image("img/cancel_order.png", width: 100%),
+  caption: [
+    Cancel Order diagram.
+  ],
+)
+
+Code:
+- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/bcde39aa87567eaee81ccd7fbaf045543c233daa/validators/order.ak#L11")[order.ak:spend():Cancel]
+
+Expected Failure Scenarios:
+- Owner is *not* signing the transaction
+
+==== Operation "scoop"
 
 This transaction processes a batch of orders against a particular pool, performed by an authorized scooper.
 
@@ -214,86 +302,6 @@ Expected Failure Scenarios:
 - An incorrect amount of LP tokens are minted/burned if any, or the `circulating_lp` property of the Pool datum is not updated accordingly
 - There's no signature of an authorized scooper
 
-=== Operation "withdraw fees"
-
-This transaction allows the treasury administrator to take a specific amount of ADA from the UTxO pool accumulated there in protocol fees. This withdrawn amount is then paid to the treasury address minus a portion (the allowance) that this admin can pay wherever he wants.
-
-#figure(
-  image("img/withdraw_fees.png", width: 100%),
-  caption: [
-    Withdraw Fees diagram.
-  ],
-)
-
-Code:
-- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/bcde39aa87567eaee81ccd7fbaf045543c233daa/validators/pool.ak#L234")[pool.ak:spend():WithdrawFees]
-
-Expected Failure Scenarios:
-
-- Pool input address and Pool output address are distinct
-- In Pool output Datum, any other field than the protocol fees one is updated
-- The amount to withdraw specified within the redeemer does not match the amount of ADA taken from the Pool UTxO, or any of the other assets quantities of the UTxO change
-- The transaction is not signed by the treasury administrator
-- The treasury part (withdraw amount minus allowance) is not paid to the treasury address
-- The amount to withdraw is greater than the available protocol fees in the Pool UTxO
-
-=== Operation "create settings"
-
-This transaction creates a settings UTxO, which is then referenced by several pool operations that need those protocol settings as part of their validation.
-
-The UTxO contains a datum with the protocol settings, and its value has a NFT used to identify it, which is minted in this create transaction.
-
-#figure(
-  image("img/create_settings.png", width: 100%),
-  caption: [
-    Create Settings diagram.
-  ],
-)
-
-Code:
-- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/bcde39aa87567eaee81ccd7fbaf045543c233daa/validators/settings.ak#L87")[settings.ak:mint()]
-
-Expected Failure Scenarios:
-
-- The protocol boot UTxO is not being spent
-- More than one settings tokens is being minted, or any other asset
-
-=== Operation "update settings"
-
-This transaction colapses two updates of different nature: ones allowed to the settings administrator and others to the treasury administrator. Each one of those can update different fields of the settings datum.
-
-The two involved redeemers are:
-- `SettingsAdminUpdate` for the settings admin
-- `TreasuryAdminUpdate` for the treasury admin
-
-#figure(
-  image("img/update_settings.png", width: 100%),
-  caption: [
-    Update Settings diagram.
-  ],
-)
-
-Code:
-- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/bcde39aa87567eaee81ccd7fbaf045543c233daa/validators/settings.ak#L8")[settings.ak:spend():SettingsAdminUpdate]
-- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/bcde39aa87567eaee81ccd7fbaf045543c233daa/validators/settings.ak#L8")[settings.ak:spend():TreasuryAdminUpdate]
-
-Expected Failure Scenarios:
-
-- There's a minting or burning happening in the transaction
-- The settings NFT is stolen from the settings UTxO
-- The settings input and output have different addresses
-- If the redeemer being executed is the `SettingsAdminUpdate`: other than the following fields are updated
-  - settings_admin
-  - metadata_admin
-  - treasury_admin
-  - authorized_scoopers
-  - base_fee, simple_fee, strategy_fee, pool_creation_fee
-  - extensions
-  else if `TreasuryAdminUpdate` is being executed, other than the following fields are updated:
-  - treasury_address
-  - authorized_staking_keys
-  - extensions?
-- The tx is not signed by the given administrator: `SettingsAdminUpdate` signed by settings admin, or `TreasuryAdminUpdate` by the treasury admin
 
 #pagebreak()
 
