@@ -306,6 +306,28 @@ Expected Failure Scenarios:
 - An incorrect amount of LP tokens are minted/burned if any, or the `circulating_lp` property of the Pool datum is not updated accordingly
 - There's no signature of an authorized scooper
 
+==== Operation "close pool"
+
+This transaction lets the treasury administrator withdraw the remaining ADA of the pool, given that it has no liquidity left. The pool NFT must be burnt.
+
+Code:
+- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/bcde39aa87567eaee81ccd7fbaf045543c233daa/validators/pool.ak#L234")[pool.ak:spend():WithdrawFees] in #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/e3b7ca3eebd64963c35bdfd2b5013b3a4c93bcef/validators/pool.ak#L282")[this branch].
+- TODO redeemer for burning the pool NFT
+
+#figure(
+  image("img/close_pool.png", width: 100%),
+  caption: [
+    Close Pool diagram.
+  ],
+)
+
+Expected Failure Scenarios:
+
+- Pool NFT is not burned.
+- Transaction is not signed by the treasury administrator.
+- Pool remaining ADA are not paid to the treasury address.
+- There's LP in circulation.
+- Pool has other asset than the pool NFT and ADA, or has more ADA than initial protocol fees ADA.
 
 #pagebreak()
 
