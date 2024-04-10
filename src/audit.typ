@@ -463,7 +463,7 @@ The final state of the files for the purposes of this report is considered to be
     id: [SSW-102],
     title: [Order `Scoop` redeemer enforces one and only one withdrawal],
     severity: "Major",
-    status: "Identified",
+    status: "Resolved",
     category: "Bug",
     commit: "4b9fd66acfc2752623d766c95a776263106bdbcd",
     description: [
@@ -474,11 +474,11 @@ The final state of the files for the purposes of this report is considered to be
       Another thing to take into account is that the withdrawals are in lexicographical order, so we should be careful when assuming that a certain script is in some specific index of the withdrawals as a list.
     ],
     recommendation: [
-      Allow the possiblity to have more than one withdrawal script in a transaction that involves the Scoop redeemer of the Order validator.
+      Allow the possiblity to have more than one withdrawal script in a transaction that involves the `Scoop` redeemer of the Order validator.
     ],
     resolution: [
-      Resolved in commit `XXXX`
-      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+      Resolved in commit `b6fbf3dfa98fa7a0dda65e2d20814dfbf50db365`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/74")[PR \#74]).
     ],
   ),
   (
@@ -607,7 +607,7 @@ The final state of the files for the purposes of this report is considered to be
     id: [SSW-206],
     title: [Pool NFT cannot be burned],
     severity: "Minor",
-    status: "Identified",
+    status: "Resolved",
     category: "Bug",
     commit: "4b9fd66acfc2752623d766c95a776263106bdbcd",
     description: [
@@ -625,8 +625,8 @@ The final state of the files for the purposes of this report is considered to be
       under the expected conditions i.e. whenever the Pool has no more liquidity left.
     ],
     resolution: [
-      Resolved in commit `XXXX`
-      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+      Resolved in commit `e84cfdfe9b15ab2f85d960d6d840ac0305788d1a`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/73")[PR \#73]).
     ],
   ),
   (
