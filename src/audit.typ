@@ -897,7 +897,7 @@ The final state of the files for the purposes of this report is considered to be
     id: [SSW-310],
     title: [Formula simplifications in `do_deposit`],
     severity: "Info",
-    status: "Identified",
+    status: "Acknowledged",
     category: "Simplification",
     commit: "2487900eea2ea1d87f6e8a04707dcf039becd265",
     description: [
@@ -915,9 +915,47 @@ The final state of the files for the purposes of this report is considered to be
       pool_state.quantity_b.3rd * user_gives_a / pool_state.quantity_a.3rd
       `
 
+      To preserve the exact same rounding behavior as the original code,
+      ceiling division should be used:
+
+      `
+      (pool_state.quantity_b.3rd * user_gives_a - 1) / pool_state.quantity_a.3rd + 1
+      `
       For the second case, where there is change in asset A, the deposited A
       amount can be directly defined as `b_in_units_of_a`.
 
+      *Proof:* (Rounding details are left out of the proof.)
+
+      First, `change` definition can be simplified as follows:
+      `
+      change
+      =  // definition of change
+      quantity_b * (b_in_units_of_a - user_gives_a) / quantity_a
+      =  // definition of b_in_units_of_a
+      quantity_b * (user_gives_b * quantity_a / quantity_b - user_gives_a) / quantity_a
+      = // distributive
+      quantity_b * user_gives_b * quantity_a / quantity_b / quantity_a
+      - quantity_b * user_gives_a / quantity_a
+      = // cancel out quantity_a and quantity_b
+      user_gives_b - quantity_b * user_gives_a / quantity_a
+      `
+
+      Then, deposited B amount is
+      `user_gives_b - change
+      = // simplified version of change
+      user_gives_b -  (user_gives_b - quantity_b * user_gives_a / quantity_a)
+      = // math
+      quantity_b * user_gives_a / quantity_a
+      `
+
+      On the other hand, deposited A amount is
+      `
+      user_gives_a - change
+      = // definition of change
+      user_gives_a - (user_gives_a - b_in_units_of_a)
+      = // math
+      b_in_units_of_a
+      `
     ],
     resolution: [
       Resolved in commit `XXXX`
