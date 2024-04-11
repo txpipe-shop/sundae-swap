@@ -588,3 +588,249 @@ hi @Quantumplation ! I just pushed finding SSW-311, and last friday SSW-310, bot
 SSW-311 also includes a branch I pushed: https://github.com/SundaeSwap-finance/sundae-contracts/tree/francolq/ssw-311
 with a couple of tests
 I didn't do a PR because I am not sure if you want it merged
+
+--------------------------------------------
+DISCUSSION ABOUT HOW TO FIX SWAP OPERATION TO CHECK THAT ROUNDING IS OPTIMAL FOR USER
+
+Quantumplation — 04/04/2024 5:41 PM
+@francolq there's a small bug in the AMM implementation that maybe you can help us figure out how to fix
+it was in our v1 implementation as well
+imagine someone creates a pool with a non-disible token: it has 20,000 ADA (20000000000 lovelace), and 50 XDIAMOND tokens (which are indivisible)
+because of rounding, there's a wide range of input values that will give you one xdiamond (not sure the exact numbers, but imagine it's 400 ADA through 799 ADA; because 799 ADA will round down to 1 XDIAMOND)
+ideally we'd calculate "how much do you get from this order" (1 XDIAMOND), and then "how much ADA is needed to get that much" (400 ADA), and return the surplus to the user
+
+Quantumplation — 04/04/2024 5:59 PM
+if it's not easy to do, what we have now works now that we understand the problem (on the UI, we just set minTakes to round up, instead of round down, so the user would say "I want a minimum of 2 XDIAMOND", and their order wouldn't execute until the price moved)
+but it's always been a minor nuisance that it'd be nice to be able to solve
+
+francolq — 04/04/2024 6:18 PM
+hello @Quantumplation I will think about it
+
+francolq — 04/04/2024 6:43 PM
+I don't fully understand what do you want to solve
+I understand you are talking about the swap operation
+
+Quantumplation — 04/04/2024 6:57 PM
+yea so
+because of rounding
+if someone says "I want to swap 799 ADA for at least one XDIAMOND"
+they will pay 799 ADA for 1 XDIAMOND
+but, they could also have gotten the same XDIAMOND for 400 ADA instead
+because like
+799 ADA buys 1.999 XDIAMOND, which gets rounded to 1 because XDIAMOND isn't divisible
+so ideally, it'd be nice to take the ADA for the swap (799); calculate how much they're going to get (1 XDIAMOND); and then calculate how much ADA they needed to spend to get that 1 XDIAMOND (i.e. 1 XDIAMOND costs 400 ADA at the current pool ratio)
+and only take that 400 ADA into the pool
+and return 399 ADA along with the XDIAMOND
+
+francolq — 04/04/2024 7:16 PM
+ok, now my question is, are you looking for a solution in the validator? like a rejection of a swap of 799 ADA for 1 XDIAMOND
+or you are looking for the formulas to create the best swap in the off-chain code?
+
+Quantumplation — 04/04/2024 8:01 PM
+yea; ideally the validator would reject an order that deposited 799 ADA into the pool and paid one XDIAMOND to the user; it should enforce that 399 ADA is returned as change to the user
+
+francolq — 04/04/2024 8:22 PM
+ok! I will try, it would be very helpful to have an Aiken test in the swap.ak module to verify the desired behaviour
+
+Quantumplation — 04/04/2024 8:31 PM
+i'll try to work out the exact numbers for a test; I could probably figure out how to implement it, I'm just very wary of the implications on the AMM formula, so I figured you'd know better
+or could think through it more thoroughly than me, becasue you're not getting pulled in 50 directions 😅
+
+francolq — 04/04/2024 8:32 PM
+I guess I can, as I am only getting pulled in 10 or 20
+
+Quantumplation — 04/04/2024 8:35 PM
+lol
+
+francolq — 04/04/2024 8:56 PM
+so I think there is a simple solution 
+inside the swap_takes function
+add a check that if the user gives just one less lovelace, it will take less XDIAMOND back
+meaning that it is actually the minimum lovelace you can give to get that amount of XDIAMOND
+  // Compute the amount of token received
+  let takes =
+    pool_take * order_give * difference / (
+      pool_give * 10000 + order_give * difference
+    )
+
+  // compute expected take if user gives one less unit
+  let takes2 =
+    pool_take * (order_give-1) * difference / (
+      pool_give * 10000 + (order_give-1) * difference
+    )
+
+  // check that user is actually giving the minimum necessary for getting "takes"
+  expect takes2 < takes
+ 
+in your example, if order_give is 799, order_give-1 will be 798, takes and takes2 will both be 1 and the check will fail
+the right amount to give is order_give = 408_163265
+if you give one less (408_163264), you will get a take result of 0
+and the check will pass
+
+Quantumplation — 04/04/2024 9:16 PM
+well
+i don't want to prevent an order with 799 offered ADA from being executed
+i just want, if it is executed, 399 of it to be returned
+so I guess i'd have to calculate (or accept in the redeemer?) the actual amount being swapped
+i.e. order_give doesn't just come from the datum anymore
+so what I want to do is calculate takes with order_offer from the datum;
+
+Then calculate real_order_give as 408_163_265 starting from takes 
+but i don't know what that formula would be
+i gues probably just take the equation that's there and solve for order_give?
+
+Quantumplation — 04/04/2024 9:25 PM
+  let takes =
+    pool_take * order_give * difference / (
+      pool_give * 10000 + order_give * difference
+    )
+  expect pool_take > take
+  let real_give = (10000 * pool_give * take) / (difference * (pool_take - take))
+
+
+?
+using:
+pool_take = 50
+pool_give = 20_000_000_000
+order_give = 799
+difference = 10000 - 30
+
+
+takes = floor((50 * 799000000 * (10000 - 30)) / (20000000000 * 10000 + 799000000 * (10000 - 30))) = 1
+
+real_give = floor((10000 * 20000000000 * 1) / ((10000 - 30) * (50 - 1))) = 409_391_439
+and i think it needs to be that plus 1
+because running 409_391_439 back through gives 0 takes, but running 409_391_440 through gives 1 take
+
+Quantumplation — 04/04/2024 9:35 PM
+so i suppose what I'm asking is, if we did
+
+  let takes =
+    pool_take * order_offer * difference / (
+      pool_give * 10000 + order_offer * difference
+    )
+  expect pool_take > takes
+  let order_give = 1 + ((10000 * pool_give * takes) / (difference * (pool_take - takes)))
+    let out_value =
+    input_value
+      |> value.add(give_policy_id, give_asset_name, -order_give)
+      |> value.add(ada_policy_id, ada_asset_name, -actual_protocol_fee)
+      |> value.add(take_policy_id, take_asset_name, takes)
+
+
+Is that safe?
+and is there a more efficient way to implement that?
+
+francolq — 04/05/2024 12:09 PM
+real_order_give can be taken from the actual difference between the input and the output value
+and then the check I proposed can be used
+so I think my proposal still works, just replacing order_give with real_order_give
+it is like the sqrt / is_sqrt discussin
+what you want to compute is already there
+
+Quantumplation — 04/05/2024 12:11 PM
+🤔 is yours more efficient though? Yours is 8 extra arithmetic operations, mine is 6 extra
+
+francolq — 04/05/2024 12:11 PM
+I feel more confident with this approach, because solving for order_give with an integer division is delicate
+
+Quantumplation — 04/05/2024 12:12 PM
+yea that's fair
+but also, i get different numbers than you; did you use different settings for pool_take, pool_give, order_give, and difference?
+
+francolq — 04/05/2024 12:12 PM
+mine is not more efficient
+sorry, I forgot to mention that I used 0 fees
+fees_per_10_thousand = 0
+
+Quantumplation — 04/05/2024 12:13 PM
+ah ok
+
+francolq — 04/05/2024 12:13 PM
+fees_per_10_thousand = 0
+pool_give = 20000000000
+order_give = 799000000
+pool_take = 50
+
+Quantumplation — 04/05/2024 12:14 PM
+@ruko what do you think?
+
+francolq — 04/05/2024 12:15 PM
+about efficiency, what I proposed can be optimized because the two equations are very similar
+
+Quantumplation — 04/05/2024 12:15 PM
+yeeee
+hmm, how do we make sure the swap gets executed in full though?
+
+francolq — 04/05/2024 12:21 PM
+oh yes, that is missing
+it can be solved with an additional check
+you need order_give
+
+Quantumplation — 04/05/2024 12:29 PM
+4 mults, 1 div, 1 addition => 4 mults, 2 divs, 1 addition, 2 subtractions
+
+So calculating a second time costs 1 div and 2 subtractions, pretty slick
+  let difference = 10000 - fees_per_10_thousand
+
+  let order_give = value.quantity_of(output_value, give_policy_id, give_asset_name) - value.quantity_of(input_value, give_policy_id, give_asset_name)
+  expect order_give <= order_offer
+
+  let pool_take_times_difference = pool_take * difference
+  let takes_numerator = pool_takes_time_difference * order_give
+  let takes_denominator = pool_give * 10000 + order_give * difference
+
+  // Compute the amount of token received
+  let takes = takes_numerator / takes_denominator
+  let one_less =
+    (takes_numerator - pool_take_times_difference) / (
+      takes_denominator - difference
+    )
+  expect one_less < takes
+but i'm not sure how to ensure that the scooper executes as much as it can
+
+francolq — 04/05/2024 12:45 PM
+compute takes from order_offer and see that it gives the same as with order_give
+
+Quantumplation — 04/05/2024 12:46 PM
+but that defeats the point
+if order_offer is 799, then I need to only take 408
+
+francolq — 04/05/2024 12:47 PM
+yes, because with both you get a take value of 1
+but if order_offer is a bit more, it will give 2
+and then the validation should fail
+
+Quantumplation — 04/05/2024 12:48 PM
+oh, you mean use my reverse calculation
+or
+hmm
+oh i see
+
+francolq — 04/05/2024 12:48 PM
+no reverse calculation
+
+Quantumplation — 04/05/2024 12:48 PM
+so i'm calculating 3 times, basically lol
+
+francolq — 04/05/2024 12:49 PM
+yes
+
+Quantumplation — 04/05/2024 12:49 PM
+and actually, i may not want to reuse a lot of steps
+because that increases mem
+but we're not steps limited
+
+francolq — 04/05/2024 12:50 PM
+that's right
+
+Quantumplation — 04/05/2024 12:50 PM
+or does a compound calc introduce intermediate variables anyway?
+
+francolq — 04/05/2024 12:51 PM
+I think so I don't usually see tradeoff between mem and cpu, they correlate most of the time
+
+Quantumplation — 04/07/2024 2:09 AM
+https://github.com/SundaeSwap-finance/sundae-contracts/pull/77
+
+Implemented here
