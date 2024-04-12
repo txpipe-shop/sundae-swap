@@ -332,10 +332,11 @@ Expected Failure Scenarios:
 #v(1em)
 
 Below is a list of all files audited in this report, any files *not* listed here were *not* audited.
-The final state of the files for the purposes of this report is considered to be commit `XXXX`.
+The final state of the files for the purposes of this report is considered to be commit #link("https://github.com/SundaeSwap-finance/sundae-contracts/commit/a4d38bbb968566412fa1a8092e4f8e1a6fa18847")[`a4d38bbb968566412fa1a8092e4f8e1a6fa18847`].
 
 #files_audited(
   items: (
+    "validators/oracle.ak",
     "validators/order.ak",
     "validators/pool.ak",
     "validators/pool_stake.ak",
@@ -344,11 +345,13 @@ The final state of the files for the purposes of this report is considered to be
     "lib/calculation/deposit.ak",
     "lib/calculation/donation.ak",
     "lib/calculation/process.ak",
+    "lib/calculation/record.ak",
     "lib/calculation/shared.ak",
     "lib/calculation/strategy.ak",
     "lib/calculation/swap.ak",
     "lib/calculation/withdrawal.ak",
     "lib/shared.ak",
+    "lib/types/oracle.ak",
     "lib/types/order.ak",
     "lib/types/pool.ak",
     "lib/types/settings.ak",
