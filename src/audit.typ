@@ -332,7 +332,7 @@ Expected Failure Scenarios:
 #v(1em)
 
 Below is a list of all files audited in this report, any files *not* listed here were *not* audited.
-The final state of the files for the purposes of this report is considered to be commit #link("https://github.com/SundaeSwap-finance/sundae-contracts/commit/a4d38bbb968566412fa1a8092e4f8e1a6fa18847")[`a4d38bbb968566412fa1a8092e4f8e1a6fa18847`].
+The final state of the files for the purposes of this report is considered to be commit #link("https://github.com/SundaeSwap-finance/sundae-contracts/commit/da66d15afa9897e6bdb531f9415ddb6c66f19ce4")[`da66d15afa9897e6bdb531f9415ddb6c66f19ce4`].
 
 #files_audited(
   items: (
