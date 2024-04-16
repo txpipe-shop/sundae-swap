@@ -61,7 +61,7 @@ enhancing the overall security of the platform.
 
 === Pool UTxO
 
-- Address: Hash of #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/a4d38bbb968566412fa1a8092e4f8e1a6fa18847/validators/pool.ak#L49")[script] parameterized on settings Policy ID. All pools in the protocol have the same address.
+- Address: Hash of #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/a4d38bbb968566412fa1a8092e4f8e1a6fa18847/validators/pool.ak#L49")[script] parameterized on settings Policy ID and on #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/pool.ak#L595")[manage script] hash. All pools in the protocol have the same address.
 - Value:
   - ADA: accumulated protocol fees (including min ADA)
   - (A, B): pair of assets contained by the pool. A may be ADA.
@@ -1010,6 +1010,32 @@ The final state of the files for the purposes of this report is considered to be
     resolution: [
       Resolved in commit `bfe8e8fd9f1177b6b202c6e871a8ed6e65d217e9`
       (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/52")[PR \#52]).
+    ],
+  ),
+  (
+    id: [SSW-313],
+    title: [`UpdatePoolFees` doesn't requires the settings UTxO as reference input],
+    severity: "Info",
+    status: "Acknowledged",
+    category: "Redundancy",
+    commit: "da66d15afa9897e6bdb531f9415ddb6c66f19ce4",
+    description: [
+      The settings UTxO is required as reference input #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/pool.ak#L78")[by contract] in both spend Pool redeemers `PoolScoop` and `Manage`.
+      This in particular means that in both `WithdrawFees` and `UpdatePoolFees` redeemers of the
+      manage stake script is required as well.
+      Furthermore, is
+      #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/pool.ak#L608")[explicitly looked up in there].
+      Even though it's needed by `WithdrawFees` logic, for `UpdatePoolFees` logic it is not.
+    ],
+    recommendation: [
+      Move the #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/pool.ak#L78")[find_settings_datum]
+      call from the Pool spend inside the `PoolScoop` branch, and in the manage stake script move
+      #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/pool.ak#L608")[such function call]
+      inside the `WithdrawFees` branch.
+    ],
+    resolution: [
+      Resolved in commit `XXXX`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/XXX")[PR \#XX]).
     ],
   ),
 ))
