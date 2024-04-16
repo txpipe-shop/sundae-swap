@@ -61,31 +61,31 @@ enhancing the overall security of the platform.
 
 === Pool UTxO
 
-- Address: Hash of #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/a4d38bbb968566412fa1a8092e4f8e1a6fa18847/validators/pool.ak#L49")[script] parameterized on settings Policy ID and on #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/pool.ak#L595")[manage script] hash. All pools in the protocol have the same address.
+- Address: Hash of #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/pool.ak#L49")[script] parameterized on settings Policy ID and on #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/pool.ak#L595")[manage script] hash. All pools in the protocol have the same address.
 - Value:
   - ADA: accumulated protocol fees (including min ADA)
   - (A, B): pair of assets contained by the pool. A may be ADA.
   - Pool NFT: minting policy parameterized on settings Policy ID.
-- Datum: #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/a4d38bbb968566412fa1a8092e4f8e1a6fa18847/lib/types/pool.ak#L7")[`PoolDatum`]
+- Datum: #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/lib/types/pool.ak#L7")[`PoolDatum`]
 
 === Order UTxO
 
-- Address: hash of #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/a4d38bbb968566412fa1a8092e4f8e1a6fa18847/validators/order.ak#L28")[script] parameterized on stake script hash, the stake script parameterized on pool script hash. All orders in the protocol have the same address.
+- Address: hash of #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/order.ak#L28")[script] parameterized on stake script hash, the stake script parameterized on pool script hash. All orders in the protocol have the same address.
 - Value:
   - ADA: at least min ADA.
   - Other: assets relevant to the order + others.
-- Datum: #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/a4d38bbb968566412fa1a8092e4f8e1a6fa18847/lib/types/order.ak#L9")[`OrderDatum`]
+- Datum: #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/lib/types/order.ak#L9")[`OrderDatum`]
 
 
 === Settings UTxO
 
 A single settings UTxO is used for the entire protocol.
 
-- Address: hash of #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/a4d38bbb968566412fa1a8092e4f8e1a6fa18847/validators/settings.ak#L12")[script] parameterized on the protocol boot UTxO.
+- Address: hash of #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/settings.ak#L12")[script] parameterized on the protocol boot UTxO.
 - Value:
   - ADA: only min ADA.
   - Settings NFT: minting policy parameterized on the protocol boot UTxO.
-- Datum: #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/a4d38bbb968566412fa1a8092e4f8e1a6fa18847/lib/types/settings.ak#L12")[`SettingsDatum`]
+- Datum: #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/lib/types/settings.ak#L12")[`SettingsDatum`]
 
 
 == Transactions
@@ -108,7 +108,7 @@ The UTxO contains a datum with the protocol settings, and its value has a NFT us
 )
 
 Code:
-- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/a4d38bbb968566412fa1a8092e4f8e1a6fa18847/validators/settings.ak#L109")[settings.ak:mint()]
+- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/settings.ak#L109")[settings.ak:mint()]
 
 Expected Failure Scenarios:
 
@@ -131,8 +131,8 @@ The two involved redeemers are:
 )
 
 Code:
-- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/a4d38bbb968566412fa1a8092e4f8e1a6fa18847/validators/settings.ak#L44")[settings.ak:spend():SettingsAdminUpdate]
-- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/a4d38bbb968566412fa1a8092e4f8e1a6fa18847/validators/settings.ak#L77")[settings.ak:spend():TreasuryAdminUpdate]
+- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/settings.ak#L44")[settings.ak:spend():SettingsAdminUpdate]
+- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/settings.ak#L77")[settings.ak:spend():TreasuryAdminUpdate]
 
 Expected Failure Scenarios:
 
@@ -176,7 +176,7 @@ The involved redeemers are:
 )
 
 Code:
-- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/a4d38bbb968566412fa1a8092e4f8e1a6fa18847/validators/pool.ak#L278")[pool.ak:mint():CreatePool]
+- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/pool.ak#L282")[pool.ak:mint():CreatePool]
 
 Expected Failure Scenarios:
 
@@ -206,7 +206,7 @@ This transaction allows the treasury administrator to take a specific amount of 
 )
 
 Code:
-- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/a4d38bbb968566412fa1a8092e4f8e1a6fa18847/validators/pool.ak#L602")[pool.ak:manage():WithdrawFees]
+- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/pool.ak#L610")[pool.ak:manage():WithdrawFees]
 
 Expected Failure Scenarios:
 
@@ -245,8 +245,8 @@ Expected Failure Scenarios:
 This transaction lets the treasury administrator withdraw the remaining ADA of the pool, given that it has no liquidity left. The pool NFT must be burnt.
 
 Code:
-- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/a4d38bbb968566412fa1a8092e4f8e1a6fa18847/validators/pool.ak#L457")[pool.ak:mint():BurnPool]
-- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/a4d38bbb968566412fa1a8092e4f8e1a6fa18847/validators/pool.ak#L602")[pool.ak:manage():WithdrawFees] by #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/e3b7ca3eebd64963c35bdfd2b5013b3a4c93bcef/validators/pool.ak#L282")[this branch].
+- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/pool.ak#L461")[pool.ak:mint():BurnPool]
+- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/pool.ak#L610")[pool.ak:manage():WithdrawFees] by #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/e3b7ca3eebd64963c35bdfd2b5013b3a4c93bcef/validators/pool.ak#L282")[this branch].
 
 #figure(
   image("img/close_pool.png", width: 100%),
@@ -302,7 +302,7 @@ It is worth noting that the order Owner is a multi-sig script, which allows a st
 )
 
 Code:
-- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/a4d38bbb968566412fa1a8092e4f8e1a6fa18847/validators/order.ak#L32")[order.ak:spend():Cancel]
+- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/order.ak#L32")[order.ak:spend():Cancel]
 
 Expected Failure Scenarios:
 - Owner is *not* signing the transaction
@@ -323,10 +323,10 @@ Both the Pool and Order validators are executed. They are attached to the transa
 )
 
 Code:
-- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/a4d38bbb968566412fa1a8092e4f8e1a6fa18847/validators/pool.ak#L86")[pool.ak:spend():PoolScoop]
-- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/a4d38bbb968566412fa1a8092e4f8e1a6fa18847/validators/order.ak#L43")[order.ak:spend():Scoop]
-- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/a4d38bbb968566412fa1a8092e4f8e1a6fa18847/validators/stake.ak#L21")[stake.ak:stake():WithdrawFrom]
-- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/a4d38bbb968566412fa1a8092e4f8e1a6fa18847/validators/pool.ak#L448")[pool.ak:mint():MintLP]
+- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/pool.ak#L85")[pool.ak:spend():PoolScoop]
+- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/order.ak#L43")[order.ak:spend():Scoop]
+- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/stake.ak#L21")[stake.ak:stake():WithdrawFrom]
+- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/pool.ak#L452")[pool.ak:mint():MintLP]
 
 Expected Failure Scenarios:
 
