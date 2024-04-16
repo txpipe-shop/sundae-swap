@@ -217,6 +217,29 @@ Expected Failure Scenarios:
 - The treasury part (withdraw amount minus allowance) is not paid to the treasury address
 - The amount to withdraw is greater than the available protocol fees in the Pool UTxO
 
+==== Operation "update pool fees"
+
+This transaction allows the Pool fees manager to update the bid and/or ask fee amount,
+information that's stored in the Pool Datum.
+
+#figure(
+  image("img/update_fees.png", width: 100%),
+  caption: [
+    Update Pool Fees diagram.
+  ],
+)
+
+Code:
+- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/pool.ak#L689")[pool.ak:manage():UpdatePoolFees]
+
+Expected Failure Scenarios:
+
+- Pool input address and Pool output address are distinct
+- Pool input value and Pool output value are distinct
+- In Pool output Datum, any other field than the bid and/or ask fees is updated
+- If one of bid/ask fee field is updated, it is out of the valid percentage range: less than 0% or more than 100%
+- The Pool fees manager is not signing the transaction
+
 ==== Operation "close pool"
 
 This transaction lets the treasury administrator withdraw the remaining ADA of the pool, given that it has no liquidity left. The pool NFT must be burnt.
