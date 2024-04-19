@@ -1061,6 +1061,27 @@ The final state of the files for the purposes of this report is considered to be
       (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/XXX")[PR \#XX]).
     ],
   ),
+  (
+    id: [SSW-314],
+    title: [`PoolState` not used anymore],
+    severity: "Info",
+    status: "Identified",
+    category: "Redundancy",
+    commit: "da66d15afa9897e6bdb531f9415ddb6c66f19ce4",
+    description: [
+      Given the merged #link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/78")[PR \#78]
+      `refactor to use continuations`, the
+      #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/lib/calculation/shared.ak#L8")[`PoolState` type]
+      previously used is not needed anymore by the Pool validator.
+    ],
+    recommendation: [
+      Remove `PoolState` type definition.
+    ],
+    resolution: [
+      Resolved in commit `XXXX`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/XXX")[PR \#XX]).
+    ],
+  ),
 ))
 
 
