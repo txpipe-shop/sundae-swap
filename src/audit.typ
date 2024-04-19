@@ -919,7 +919,7 @@ The final state of the files for the purposes of this report is considered to be
     id: [SSW-310],
     title: [Formula simplifications in `do_deposit`],
     severity: "Info",
-    status: "Acknowledged",
+    status: "Resolved",
     category: "Simplification",
     commit: "2487900eea2ea1d87f6e8a04707dcf039becd265",
     description: [
@@ -980,8 +980,8 @@ The final state of the files for the purposes of this report is considered to be
       `
     ],
     resolution: [
-      Resolved in commit `XXXX`
-      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+      Resolved in commit `db5185ca01e3ffdb4c643a651f4b439ddd3d0ae4`
+      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/76")[PR \#76]).
     ],
   ),
   (
