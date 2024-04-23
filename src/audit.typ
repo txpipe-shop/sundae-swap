@@ -286,6 +286,7 @@ More precisely, the assets relevant to the specific type of Order are:
 - Withdrawal: LP tokens.
 - Donation: both assets from the pair.
 - Strategy: none.
+- Record: record NFT.
 
 #figure(
   image("img/create_order.png", width: 100%),
