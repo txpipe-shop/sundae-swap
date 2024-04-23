@@ -77,6 +77,14 @@ enhancing the overall security of the platform.
 - Datum: #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/lib/types/order.ak#L9")[`OrderDatum`]
 
 
+=== Oracle UTxO
+
+- Address: hash of #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/oracle.ak#L24")[script] parameterized on pool script hash.
+- Value:
+  - ADA: at least min ADA.
+  - Oracle NFT: #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/oracle.ak#L54")[minting policy] with same hash as this oracle script.
+- Datum: #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/lib/types/oracle.ak#L5")[`OracleDatum`]
+
 === Settings UTxO
 
 A single settings UTxO is used for the entire protocol.
