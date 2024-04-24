@@ -1070,8 +1070,10 @@ The final state of the files for the purposes of this report is considered to be
       inside the `WithdrawFees` branch.
     ],
     resolution: [
-      Resolved in commit `XXXX`
-      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/XXX")[PR \#XX]).
+      *Project team* decided not to resolve this finding in the scope of the
+      audited version.
+      As the *audit team* we endorse the decision, as this finding is only
+      informational.
     ],
   ),
   (
@@ -1091,8 +1093,10 @@ The final state of the files for the purposes of this report is considered to be
       Remove `PoolState` type definition.
     ],
     resolution: [
-      Resolved in commit `XXXX`
-      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/XXX")[PR \#XX]).
+      *Project team* decided not to resolve this finding in the scope of the
+      audited version.
+      As the *audit team* we endorse the decision, as this finding is only
+      informational.
     ],
   ),
 ))
