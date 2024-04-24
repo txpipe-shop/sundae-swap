@@ -1074,15 +1074,16 @@ The final state of the files for the purposes of this report is considered to be
     resolution: [
       *Project team* decided not to resolve this finding in the scope of the
       audited version.
-      As the *audit team* we endorse the decision, as this finding is only
-      informational.
+      As the *audit team* we endorse the decision, since the downside is just
+      the little extra off-chain work of adding the settings UTxO as
+      reference input when building the update pool fees transaction.
     ],
   ),
   (
     id: [SSW-314],
     title: [`PoolState` not used anymore],
     severity: "Info",
-    status: "Identified",
+    status: "Acknowledged",
     category: "Redundancy",
     commit: "da66d15afa9897e6bdb531f9415ddb6c66f19ce4",
     description: [
@@ -1097,8 +1098,8 @@ The final state of the files for the purposes of this report is considered to be
     resolution: [
       *Project team* decided not to resolve this finding in the scope of the
       audited version.
-      As the *audit team* we endorse the decision, as this finding is only
-      informational.
+      As the *audit team* we endorse the decision, as this doesn't impact the
+      contracts since unused structures are not included in the compilation result.
     ],
   ),
 ))
