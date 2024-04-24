@@ -952,6 +952,7 @@ The final state of the files for the purposes of this report is considered to be
       `
       (pool_state.quantity_b.3rd * user_gives_a - 1) / pool_state.quantity_a.3rd + 1
       `
+
       For the second case, where there is change in asset A, the deposited A
       amount can be directly defined as `b_in_units_of_a`.
 
@@ -971,8 +972,9 @@ The final state of the files for the purposes of this report is considered to be
       user_gives_b - quantity_b * user_gives_a / quantity_a
       `
 
-      Then, deposited B amount is
-      `user_gives_b - change
+      Then, deposited B amount is:
+      `
+      user_gives_b - change
       = // simplified version of change
       user_gives_b -  (user_gives_b - quantity_b * user_gives_a / quantity_a)
       = // math
