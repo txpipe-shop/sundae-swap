@@ -1022,8 +1022,12 @@ The final state of the files for the purposes of this report is considered to be
       is guaranteed by the code.
     ],
     resolution: [
-      Resolved in commit `XXXX`
-      (#link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/NN")[PR \#NN]).
+      *Project team* decided not to resolve this finding.
+      Current business model and implementation, including the formulas for the
+      deposit operation, are inherited from SundaeSwap V2 protocol, and were
+      extensively tested in previous audits.
+      As the *audit team* we endorse the decision, as this finding is only
+      informational.
     ],
   ),
   (
