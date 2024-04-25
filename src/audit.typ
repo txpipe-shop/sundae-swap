@@ -50,15 +50,15 @@ The settings UTxO determine, among other things, the list of authorized
 scoopers.
 Liquidity pools are created and validated with the minting of a pool NFT.
 
-Orders are created with no validation, so it is up to the scoopers to select well-formed orders to be processed.
+Orders are created with no validation, so it is up to the scoopers to select
+well-formed orders to be processed.
 There are several order types:
 - Swap: to swap one token for another.
 - Deposit: to provide liquidity and obtain LP tokens.
 - Withdrawal: to redeem LP tokens and remove liquidity.
 - Donation: to provide liquidity for free.
-- Strategy: ...
-- Record: ...
-
+- Strategy: to lock funds for an operation that will be determined at processing time by a designated signer.
+- Record: to create an output that can be used to do a snapshot of the pool state (than can be used later as an oracle).
 
 #v(1em)
 
