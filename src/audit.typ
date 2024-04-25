@@ -27,7 +27,39 @@ do not claim to have detected all potential vulnerabilities.
 
 == Overview
 #v(1em)
-#lorem(50)
+The core component of SundaeSwap V3 is the liquidity pool.
+Liquidity pools are script UTxOs that hold liquidity for two fixed assets.
+Standard operations are supported, such as swapping and providing/removing liquidity, together with more advanced operations.
+
+To address concurrency, users does not interact directly with LPs but place
+orders.
+Orders are script UTxOs that hold all the assets and information required for
+the execution of the desired operation.
+They can be directed to a specific pool, or open to any pool that is able to
+process it.
+
+Orders are processed in batches in "scoop" transactions by authorized entities
+called "scoopers".
+A scoop transaction applies a sequence of orders to a specific pool,
+transforming the pool state and doing all the required payments to fulfill the
+orders purpose.
+
+SundaeSwap V3 protocol is booted by the creation of a single settings UTxO that
+governs the entire protocol.
+The settings UTxO determine, among other things, the list of authorized
+scoopers.
+Liquidity pools are created and validated with the minting of a pool NFT.
+
+Orders are created with no validation, so it is up to the scoopers to select well-formed orders to be processed.
+There are several order types:
+- Swap: to swap one token for another.
+- Deposit: to provide liquidity and obtain LP tokens.
+- Withdrawal: to redeem LP tokens and remove liquidity.
+- Donation: to provide liquidity for free.
+- Strategy: ...
+- Record: ...
+
+
 #v(1em)
 
 == Process
