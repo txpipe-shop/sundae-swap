@@ -160,7 +160,6 @@ A multivalidator is used to contain both the spend and the minting validators.
 
 == Transactions
 #v(1em)
-Below are a list of valid and invalid transactions as diagrams that can be build to interact with Sundae Swap DEX.
 
 === Settings
 
