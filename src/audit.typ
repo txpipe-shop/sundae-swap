@@ -89,43 +89,73 @@ enhancing the overall security of the platform.
 
 = Specification
 
-== Main UTxOs
+== UTxOs
 
-=== Pool UTxO
+=== Settings UTxO
 
-- Address: Hash of #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/pool.ak#L49")[script] parameterized on settings Policy ID and on #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/pool.ak#L595")[manage script] hash. All pools in the protocol have the same address.
+A single script UTxO that is created at launch and used for the entire protocol.
+Creation is validated with the minting of the "Settings NFT" that is locked
+into the UTxO.
+A multivalidator is used to contain both the spend and the minting validators.
+
+- Address: hash of multivalidator in #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/settings.ak#L12")[`settings.ak`]. Parameters:
+  - `protocol_boot_utxo`: reference to a UTxO that must be spent at settings creation.
 - Value:
-  - ADA: accumulated protocol fees (including min ADA)
+  - ADA: only min ADA.
+  - Settings NFT: minting policy defined in the multivalidator.
+- Datum: #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/lib/types/settings.ak#L12")[`SettingsDatum`]
+
+=== Pool UTxOs
+
+One script UTxO for each liquidity pool.
+All pools in the protocol share the same address.
+Liquidity pool creation is validated with the minting of a "Pool NFT" that is
+locked into the UTxO.
+A multivalidator is used to contain both the spend and the minting validators.
+Moreover, the minting validator is used both for the Pool NFT and for the LP
+tokens.
+
+- Address: hash of multivalidator in #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/pool.ak#L49")[pool.ak].   Parameters:
+  - `manage_stake_script_hash`: hash of staking script that validates pool management operations.
+  - `settings_policy_id`: minting policy of the Settings NFT.
+- Value:
+  - ADA: accumulated protocol fees (including min ADA).
   - (A, B): pair of assets contained by the pool. A may be ADA.
-  - Pool NFT: minting policy parameterized on settings Policy ID.
+  - Pool NFT: minting policy defined in the multivalidator.
 - Datum: #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/lib/types/pool.ak#L7")[`PoolDatum`]
 
-=== Order UTxO
+=== Order UTxOs
 
-- Address: hash of #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/order.ak#L28")[script] parameterized on stake script hash, the stake script parameterized on pool script hash. All orders in the protocol have the same address.
+One script UTxO per order.
+All orders in the protocol share the same address.
+Order creation is not validated.
+Order spending is validated to be done by the order creator or by a transaction that involves spending a liquidity pool.
+The latter check is done by a staking validator that is referenced in the spend validator.
+This way, the check is done only once for the transaction and not one time for each spent order, optimizing mem/CPU usage.
+
+- Address: hash of spend validator in #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/order.ak#L28")[`order.ak`]. Parameters:
+  - `stake_script_hash`: hash of staking script that validates for the presence of a valid liquidity pool.
 - Value:
   - ADA: at least min ADA.
   - Other: assets relevant to the order + others.
 - Datum: #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/lib/types/order.ak#L9")[`OrderDatum`]
 
+=== Oracle UTxOs
 
-=== Oracle UTxO
+A UTxO that can be created as the result of processing an order of type
+"Record", if the correct parameters for the order are used.
+Creation is validated with the minting of the "Oracle NFT" that is locked
+into the UTxO, to check that the datum contains the correct information
+regarding the pool state.
+The UTxO can be spent by an owner defined in the order.
+A multivalidator is used to contain both the spend and the minting validators.
 
-- Address: hash of #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/oracle.ak#L24")[script] parameterized on pool script hash.
+- Address: hash of multivalidator in #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/oracle.ak#L24")[`oracle.ak`]. Parameters:
+  - `pool_script_hash`: hash of pool multivalidator.
 - Value:
   - ADA: at least min ADA.
   - Oracle NFT: #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/oracle.ak#L54")[minting policy] with same hash as this oracle script.
 - Datum: #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/lib/types/oracle.ak#L5")[`OracleDatum`]
-
-=== Settings UTxO
-
-A single settings UTxO is used for the entire protocol.
-
-- Address: hash of #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/settings.ak#L12")[script] parameterized on the protocol boot UTxO.
-- Value:
-  - ADA: only min ADA.
-  - Settings NFT: minting policy parameterized on the protocol boot UTxO.
-- Datum: #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/lib/types/settings.ak#L12")[`SettingsDatum`]
 
 
 == Transactions
