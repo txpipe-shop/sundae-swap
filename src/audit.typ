@@ -4,7 +4,7 @@
   client: "Sundae Labs",
   title: "V3",
   repo: "https://github.com/txpipe-shop/sundae-swap",
-  date: "XXXXX",
+  date: "April 26, 2024",
 )
 
 #show link: underline
