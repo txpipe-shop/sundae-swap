@@ -1194,7 +1194,11 @@ The final state of the files for the purposes of this report is considered to be
 ))
 
 
-= Reported issues
+= Minor issues
+
+In this section we list some issues we found that do not qualify as findings
+such as typos, coding style, naming, etc.
+We used the Github issues system to report them.
 
 - #link("https://github.com/SundaeSwap-finance/sundae-contracts/issues/37")[typo: continuout -> continuing \#37]
 
@@ -1212,6 +1216,9 @@ The final state of the files for the purposes of this report is considered to be
 
 
 = Contributed PRs
+
+In this section we list some code contributions we did, usually as a result of
+studying and/or confirming possible findings.
 
 - #link("https://github.com/SundaeSwap-finance/sundae-contracts/pull/48")[New Aiken test for process_orders with 30 shuffled donation orders \#48]
 
