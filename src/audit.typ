@@ -425,10 +425,16 @@ Expected Failure Scenarios:
 
 === Oracles
 
+==== Operation "create oracle"
+
+Oracle creation is embedded in scoop operation by processing a previously created Record order. So, unlike the other operations described, this one is "contained" within the scoop operation.
+
+From the scoop operation POV: for each Record order input there's an oracle script output uniquely identified by an oracle token (NFT) minted in this same transaction. The oracle datum contains a snapshot of the state of the pool output i.e. quantities of both tokens of the pair and of circulating LP.
+
 ==== Operation "close oracle"
 
-This transaction allows to close an oracle on behalf of its owner by enforcing the burning of its NFT,
-which is a must since people will be relying on the oracle token to authenticate the actual pool values.
+This transaction allows to close an oracle on behalf of its owner by enforcing the burning of the oracle
+token, which is a must since people will be relying on the oracle token to authenticate the actual pool values.
 
 #figure(
   image("img/close_oracle.png", width: 50%),
