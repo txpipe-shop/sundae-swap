@@ -397,6 +397,7 @@ Code:
 - #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/order.ak#L43")[order.ak:spend():Scoop]
 - #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/stake.ak#L21")[stake.ak:stake():WithdrawFrom]
 - #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/pool.ak#L452")[pool.ak:mint():MintLP]
+- If there are oracle orders, #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/oracle.ak#L56")[oracle.ak:mint():Mint]
 
 Expected Failure Scenarios:
 
@@ -417,6 +418,33 @@ Expected Failure Scenarios:
 - The market is not open yet i.e. the tx validation range is not contained in the interval [market open POSIX time, +∞)
 - An incorrect amount of LP tokens are minted/burned if any, or the `circulating_lp` property of the Pool datum is not updated accordingly
 - There's no signature of an authorized scooper
+- If there's an oracle order:
+  - there's a 1-to-1 correspondence with oracle script outputs
+  - each oracle script output has only one oracle token
+  - oracle datum has the correct validity range and recorded pool values i.e. the token A and B reserves, and circulation LP recorded in oracle datum matches with the Pool output state.
+
+=== Oracles
+
+==== Operation "close oracle"
+
+This transaction allows to close an oracle on behalf of its owner by enforcing the burning of its NFT,
+which is a must since people will be relying on the oracle token to authenticate the actual pool values.
+
+#figure(
+  image("img/close_oracle.png", width: 50%),
+  caption: [
+    Close Oracle diagram.
+  ],
+)
+
+Code:
+- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/oracle.ak#L31")[oracle.ak:spend()]
+- #link("https://github.com/SundaeSwap-finance/sundae-contracts/blob/da66d15afa9897e6bdb531f9415ddb6c66f19ce4/validators/oracle.ak#L119")[oracle.ak:mint():Burn]
+
+Expected Failure Scenarios:
+
+- Owner doesn't sign the transaction.
+- Oracle token is preset in some output i.e. is not being burned.
 
 #pagebreak()
 
