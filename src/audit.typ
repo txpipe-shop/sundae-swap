@@ -459,7 +459,7 @@ Expected Failure Scenarios:
 #v(1em)
 
 Below is a list of all files audited in this report, any files *not* listed here were *not* audited.
-The final state of the files for the purposes of this report is considered to be commit #link("https://github.com/SundaeSwap-finance/sundae-contracts/commit/da66d15afa9897e6bdb531f9415ddb6c66f19ce4")[`da66d15afa9897e6bdb531f9415ddb6c66f19ce4`].
+The final state of the files for the purposes of this report is considered to be commit #link("https://github.com/SundaeSwap-finance/sundae-contracts/commit/edc118880d3baffcb7d5bd277faec2e7dc54c59b")[`edc118880d3baffcb7d5bd277faec2e7dc54c59b`].
 
 #files_audited(
   items: (
@@ -485,6 +485,110 @@ The final state of the files for the purposes of this report is considered to be
     "https://github.com/SundaeSwap-finance/aicone/blob/main/lib/sundae/multisig.ak",
   )
 )
+
+#pagebreak()
+= Launch details
+
+== Parameters
+
+#grid(
+  columns: (30%, 70%),
+  gutter: 1pt,
+  cell(fill: table_header, height: auto)[
+    #set align(horizon + center)
+    *Name*
+  ],
+  cell(fill: table_header, height: auto)[
+    #set align(horizon + center)
+    *Value*
+  ],
+  cell()[
+    #set align(horizon)
+    // #text(0.8em)[`settings.ak:protocol_boot_utxo`]
+    `protocol_boot_utxo`
+  ],
+  cell()[
+    #set align(horizon)
+     #text(0.8em)[`382b27b28c70343161f9abebdab78264e0fd7271baf3bb88ca04b52e5f0067ef#01`]
+  ],
+)
+
+== Script hashes
+
+#grid(
+  columns: (30%, 70%),
+  gutter: 1pt,
+  cell(fill: table_header, height: auto)[
+    #set align(horizon + center)
+    *Validator*
+  ],
+  cell(fill: table_header, height: auto)[
+    #set align(horizon + center)
+    *Hash (Blake2b-224)*
+  ],
+  cell()[
+    #set align(horizon)
+    // Settings UTxO
+    // Settings NFT
+    Settings (spend & mint)
+  ],
+  cell()[
+    #set align(horizon)
+    `6d9d7acac59a4469ec52bb207106167c5cbfa689008ffa6ee92acc50`
+  ],
+  cell()[
+    #set align(horizon)
+    // Pool UTxOs
+    // Pool NFTs
+    // LP tokens
+    Pool (spend & mint)
+  ],
+  cell()[
+    #set align(horizon)
+    `e0302560ced2fdcbfcb2602697df970cd0d6a38f94b32703f51c312b`
+  ],
+  cell()[
+    #set align(horizon)
+    Pool staking
+  ],
+  cell()[
+    #set align(horizon)
+    `4399813dad91bb78a5eb17c26ff50852bc75d3fa7b6e9ae87232ccc1`
+  ],
+  cell()[
+    #set align(horizon)
+    Manage withdrawal
+  ],
+  cell()[
+    #set align(horizon)
+    `e0fccbbfb75923bff6dac5f23805dcf6cecfaae8aa3a6d3e474ee670`
+  ],
+  cell()[
+    #set align(horizon)
+    Order
+  ],
+  cell()[
+    #set align(horizon)
+    `fa6a58bbe2d0ff05534431c8e2f0ef2cbdc1602a8456e4b13c8f3077`
+  ],
+  cell()[
+    #set align(horizon)
+    Order withdrawal
+  ],
+  cell()[
+    #set align(horizon)
+    `99e5aacf401fed0eb0e2993d72d423947f42342e8f848353d03efe61`
+  ],
+  cell()[
+    #set align(horizon)
+    Oracle (spend & mint)
+  ],
+  cell()[
+    #set align(horizon)
+    `f50153654bd0e167563cd0bbbff1b73c40157e53408a0ef517e67a5d`
+  ],
+)
+
 
 #pagebreak()
 
